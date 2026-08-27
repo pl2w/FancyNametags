@@ -14,11 +14,11 @@ public class SelectView : ComputerView
 {
     public static SelectView Instance;
 
-    private string header;
+    private readonly string _header;
 
-    private Entry[] effectEntries;
-    private UIElementPageHandler<Entry> pageHandler;
-    private UISelectionHandler selectionHandler;
+    private readonly Entry[] _effectEntries;
+    private readonly UIElementPageHandler<Entry> _pageHandler;
+    private readonly UISelectionHandler _selectionHandler;
 
     public string ActiveError;
 
@@ -26,7 +26,7 @@ public class SelectView : ComputerView
     {
         Instance = this;
 
-        header = new StringBuilder()
+        _header = new StringBuilder()
             .BeginCenter()
             .MakeBar('=', ScreenWidth, 0)
             .AppendLine("\nFancy Nametags <size=60%>by pl2w</size>")
@@ -35,27 +35,27 @@ public class SelectView : ComputerView
             .AppendLines(1)
             .ToString();
 
-        effectEntries = [
-            new("Color Wave", typeof(Effects.ColorWave)),
-            new("Bobber", typeof(Effects.TextBobber)),
-            new("Glitch", typeof(Effects.TextGlitch)),
-            new("Pulse", typeof(Effects.TextPulse)),
-            new("Rainbow", typeof(Effects.TextRainbow)),
+        _effectEntries = [
+            new Entry("Color Wave", typeof(ColorWave)),
+            new Entry("Bobber", typeof(TextBobber)),
+            new Entry("Glitch", typeof(TextGlitch)),
+            new Entry("Pulse", typeof(TextPulse)),
+            new Entry("Rainbow", typeof(TextRainbow)),
         ];
 
-        pageHandler = new UIElementPageHandler<Entry>(EKeyboardButton.Left, EKeyboardButton.Right);
-        pageHandler.SetElements(effectEntries);
-        pageHandler.EntriesPerPage = 8;
+        _pageHandler = new UIElementPageHandler<Entry>(EKeyboardButton.Left, EKeyboardButton.Right);
+        _pageHandler.SetElements(_effectEntries);
+        _pageHandler.EntriesPerPage = 8;
 
-        selectionHandler = new UISelectionHandler(EKeyboardButton.Up, EKeyboardButton.Down, EKeyboardButton.Enter);
-        selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>> </color>", "", "  ", "");
-        selectionHandler.MaxIndex = effectEntries.Length - 1;
-        selectionHandler.OnSelected += SetEffect;
+        _selectionHandler = new UISelectionHandler(EKeyboardButton.Up, EKeyboardButton.Down, EKeyboardButton.Enter);
+        _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>> </color>", "", "  ", "");
+        _selectionHandler.MaxIndex = _effectEntries.Length - 1;
+        _selectionHandler.OnSelected += SetEffect;
     }
 
     protected override string GetViewText()
     {
-        var stringBuilder = new StringBuilder(header);
+        var stringBuilder = new StringBuilder(_header);
 
         stringBuilder
             .BeginColor(Color.red)
@@ -63,12 +63,13 @@ public class SelectView : ComputerView
             .EndAlign();
 
         var controller = Behaviours.NameEffectRegistry.LocalController;
-        pageHandler.EnumerateElements((entry, relativeIndex) => {
-            int index = pageHandler.GetAbsoluteIndex(pageHandler.CurrentPage, relativeIndex);
-            string color = controller.VertexEffect?.GetType() == entry.EffectComponentType || controller.ColorEffect?.GetType() == entry.EffectComponentType 
-                ? "green" 
+        _pageHandler.EnumerateElements((entry, relativeIndex) =>
+        {
+            int index = _pageHandler.GetAbsoluteIndex(_pageHandler.CurrentPage, relativeIndex);
+            string color = controller.VertexEffect?.GetType() == entry.EffectComponentType || controller.ColorEffect?.GetType() == entry.EffectComponentType
+                ? "green"
                 : "white";
-            string text = selectionHandler.GetIndicatedText(index, $"<color={color}>{entry.EffectName}</color>");
+            string text = _selectionHandler.GetIndicatedText(index, $"<color={color}>{entry.EffectName}</color>");
             stringBuilder.AppendLine(text);
         });
 
@@ -92,7 +93,7 @@ public class SelectView : ComputerView
             return;
         }
 
-        if (pageHandler.HandleButtonPress(key) || selectionHandler.HandleButtonPress(key))
+        if (_pageHandler.HandleButtonPress(key) || _selectionHandler.HandleButtonPress(key))
         {
             UpdateViewScreen();
         }
@@ -102,10 +103,10 @@ public class SelectView : ComputerView
     {
         var controller = Behaviours.NameEffectRegistry.LocalController;
 
-        var effectType = effectEntries[index].EffectComponentType;
+        var effectType = _effectEntries[index].EffectComponentType;
         var effect = controller.gameObject.AddComponent(effectType) as BaseNameEffect;
 
-        if (effect.ModifyVertices)
+        if (effect!.ModifyVertices)
         {
             if (controller.VertexEffect?.GetType() == effectType) controller.ClearVertexEffect();
             else controller.SetVertexEffect(effect);
@@ -117,11 +118,15 @@ public class SelectView : ComputerView
         }
     }
 
-    private record class Entry(string EffectName, Type EffectComponentType);
+    private class Entry(string effectName, Type effectComponentType)
+    {
+        public string EffectName { get; } = effectName;
+        public Type EffectComponentType { get; } = effectComponentType;
+    }
 }
 
 public class SelectViewEntry : IComputerViewEntry
 {
     public string EntryName => "Fancy Names";
-    public System.Type EntryComputerView => typeof(SelectView);
+    public Type EntryComputerView => typeof(SelectView);
 }

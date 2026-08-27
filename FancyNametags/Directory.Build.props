@@ -1,5 +1,5 @@
 <Project>
     <PropertyGroup>
-        <GorillaTagDir Condition="'$(GorillaTagDir)' == ''">$(GORILLATAG_PATH)</GorillaTagDir>
+        <GorillaTagDir Condition="'$(GorillaTagDir)' == ''">/mnt/wdblue/SteamLibrary/steamapps/common/Gorilla Tag</GorillaTagDir>
     </PropertyGroup>
 </Project>

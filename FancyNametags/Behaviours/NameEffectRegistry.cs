@@ -5,7 +5,7 @@ namespace FancyNametags.Behaviours;
 public static class NameEffectRegistry
 {
     private static readonly Dictionary<NetPlayer, NameEffectController> Controllers = new();
-    
+
     public static NameEffectController LocalController;
 
     public static void Register(NetPlayer player, NameEffectController controller)
