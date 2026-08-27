@@ -18,44 +18,23 @@ public abstract class BaseNameEffect : MonoBehaviour
     }
 
     protected abstract void AnimateCharacter(
-        int charIndex, 
-        int vertexIndex, 
-        TMP_CharacterInfo charInfo, 
-        Vector3[] vertices, 
+        int charIndex,
+        int vertexIndex,
+        TMP_CharacterInfo charInfo,
+        Vector3[] vertices,
         Color32[] colors
     );
-    
-    protected virtual void Update()
-    {
-        if (!NameTag) 
-            return;
 
-        if (ModifyVertices)
-            NameTag.ForceMeshUpdate();
+    protected internal virtual bool ShouldAnimateThisFrame() => true;
 
-        var textInfo = NameTag.textInfo;
-        if (textInfo.characterCount == 0) 
-            return;
+    internal bool ModifyVerticesInternal => ModifyVertices;
+    internal bool ModifyColorsInternal => ModifyColors;
 
-        for (var i = 0; i < textInfo.characterCount; i++)
-        {
-            var charInfo = textInfo.characterInfo[i];
-            if (!charInfo.isVisible) continue;
-
-            var vertIdx = charInfo.vertexIndex;
-            var matIdx = charInfo.materialReferenceIndex;
-
-            var verts = textInfo.meshInfo[matIdx].vertices;
-            var colors = textInfo.meshInfo[matIdx].colors32;
-
-            AnimateCharacter(i, vertIdx, charInfo, verts, colors);
-        }
-
-        if (ModifyVertices && ModifyColors)
-            NameTag.UpdateVertexData(TMP_VertexDataUpdateFlags.Vertices | TMP_VertexDataUpdateFlags.Colors32);
-        else if (ModifyVertices)
-            NameTag.UpdateVertexData(TMP_VertexDataUpdateFlags.Vertices);
-        else if (ModifyColors)
-            NameTag.UpdateVertexData(TMP_VertexDataUpdateFlags.Colors32);
-    }
+    internal void AnimateCharacterInternal(
+        int charIndex,
+        int vertexIndex,
+        TMP_CharacterInfo charInfo,
+        Vector3[] vertices,
+        Color32[] colors)
+        => AnimateCharacter(charIndex, vertexIndex, charInfo, vertices, colors);
 }

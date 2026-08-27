@@ -3,10 +3,12 @@ using UnityEngine;
 
 namespace FancyNametags.Effects;
 
-public class ColorWave : BaseNameEffect
+public class TextRainbow : BaseNameEffect
 {
-    public float speed = 0.5f;
-    public float highlightIntensity = 0.5f;
+    public float speed = 0.3f;
+    public float saturation = 1f;
+    public float brightness = 1f;
+    public float hueSpread = 1f;
 
     protected override bool ModifyVertices => false;
     protected override bool ModifyColors => true;
@@ -18,18 +20,13 @@ public class ColorWave : BaseNameEffect
         Vector3[] vertices,
         Color32[] colors)
     {
-        if (!Rig) return;
-
-        var baseColor = Rig.playerColor;
-        var colorMid = Color.Lerp(baseColor, Color.white, highlightIntensity);
-        var colorDark = baseColor * 0.75f;
-        colorDark.a = baseColor.a;
-
         var totalChars = NameTag.textInfo.characterCount;
         var charOffset = (float)charIndex / Mathf.Max(1, totalChars - 1);
 
-        var wave = Mathf.Sin((Time.time * speed - charOffset) * Mathf.PI * 2f) * 0.5f + 0.5f;
-        Color32 col = Color.Lerp(colorDark, colorMid, wave);
+        var hue = (Time.time * speed - charOffset * hueSpread) % 1f;
+        if (hue < 0f) hue += 1f;
+
+        Color32 col = Color.HSVToRGB(hue, saturation, brightness);
 
         colors[vertexIndex + 0] = col;
         colors[vertexIndex + 1] = col;

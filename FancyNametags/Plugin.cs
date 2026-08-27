@@ -1,5 +1,6 @@
 using System.Reflection;
 using BepInEx;
+using BepInEx.Logging;
 using HarmonyLib;
 
 namespace FancyNametags;
@@ -7,10 +8,14 @@ namespace FancyNametags;
 [BepInPlugin(PluginInfo.Guid, PluginInfo.Name, PluginInfo.Version)]
 public class Plugin : BaseUnityPlugin
 {
+    public static ManualLogSource Log { get; private set; }
+
     private Harmony _harmony;
 
     public void Awake()
     {
+        Log = Logger;
+
         _harmony = new Harmony(PluginInfo.Guid);
         _harmony.PatchAll(Assembly.GetExecutingAssembly());
     }

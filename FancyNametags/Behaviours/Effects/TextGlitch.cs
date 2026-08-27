@@ -15,19 +15,18 @@ public class TextGlitch : BaseNameEffect
     protected override bool ModifyVertices => true;
     protected override bool ModifyColors => true;
 
-    protected override void Update()
+    protected internal override bool ShouldAnimateThisFrame()
     {
-        if (Time.time < _nextGlitchTime) return;
+        if (Time.time < _nextGlitchTime) return false;
         _nextGlitchTime = Time.time + glitchInterval;
-
-        base.Update();
+        return true;
     }
 
     protected override void AnimateCharacter(
-        int charIndex, 
-        int vertexIndex, 
-        TMP_CharacterInfo charInfo, 
-        Vector3[] vertices, 
+        int charIndex,
+        int vertexIndex,
+        TMP_CharacterInfo charInfo,
+        Vector3[] vertices,
         Color32[] colors)
     {
         if (Random.value >= glitchChance) return;
