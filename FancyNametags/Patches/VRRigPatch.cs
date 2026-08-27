@@ -14,6 +14,13 @@ public static class VRRigOnEnablePatch
             controller = nameTagObject.AddComponent<NameEffectController>();
 
         controller.Initialize(__instance.playerText1, __instance);
+
+        if (__instance.isLocal)
+        {
+            NameEffectRegistry.LocalController = controller;
+            return;
+        }
+
         NameEffectRegistry.Register(__instance.Creator, controller);
     }
 }
