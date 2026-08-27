@@ -15,7 +15,7 @@ public class NameEffectController : MonoBehaviour
     public void Initialize(TMP_Text nameTag, VRRig rig)
     {
         ClearAllEffects();
-        
+
         _nameTag = nameTag;
         _rig = rig;
     }

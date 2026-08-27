@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FancyNametags", "FancyNametags\FancyNametags.csproj", "{D8CFFA91-21C7-431E-8FC5-8837274A9FA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestNametag", "TestNametag\TestNametag.csproj", "{0E1E8BBF-4719-4C72-BBAC-115D5F9B8AC9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{D8CFFA91-21C7-431E-8FC5-8837274A9FA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D8CFFA91-21C7-431E-8FC5-8837274A9FA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D8CFFA91-21C7-431E-8FC5-8837274A9FA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E1E8BBF-4719-4C72-BBAC-115D5F9B8AC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E1E8BBF-4719-4C72-BBAC-115D5F9B8AC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E1E8BBF-4719-4C72-BBAC-115D5F9B8AC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E1E8BBF-4719-4C72-BBAC-115D5F9B8AC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
