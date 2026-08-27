@@ -9,8 +9,8 @@ public class NameEffectController : MonoBehaviour
     private TMP_Text _nameTag;
     private VRRig _rig;
 
-    private BaseNameEffect _vertexEffect;
-    private BaseNameEffect _colorEffect;
+    public BaseNameEffect VertexEffect;
+    public BaseNameEffect ColorEffect;
 
     public void Initialize(TMP_Text nameTag, VRRig rig)
     {
@@ -24,14 +24,16 @@ public class NameEffectController : MonoBehaviour
     {
         if (effect != null && !effect.ModifyVertices)
         {
-            Plugin.Log.LogWarning($"{effect.GetType().Name} does not modify vertices, and cannot be used as a vertex effect.");
+            string message = $"{effect.GetType().Name} does not modify vertices, and cannot be used as a vertex effect.";
+            Views.SelectView.Instance.ActiveError = message;
+            Plugin.Log.LogWarning(message);
             return;
         }
 
-        if (_vertexEffect != null && _vertexEffect != effect && _vertexEffect != _colorEffect)
-            Destroy(_vertexEffect);
+        if (VertexEffect != null && VertexEffect != effect && VertexEffect != ColorEffect)
+            Destroy(VertexEffect);
 
-        _vertexEffect = effect;
+        VertexEffect = effect;
         effect?.Initialize(_nameTag, _rig);
     }
 
@@ -39,54 +41,56 @@ public class NameEffectController : MonoBehaviour
     {
         if (effect != null && !effect.ModifyColors)
         {
-            Plugin.Log.LogWarning($"{effect.GetType().Name} does not modify colors, and cannot be used as a color effect.");
+            string message = $"{effect.GetType().Name} does not modify colors, and cannot be used as a color effect.";
+            Views.SelectView.Instance.ActiveError = message;
+            Plugin.Log.LogWarning(message);
             return;
         }
 
-        if (_colorEffect != null && _colorEffect != effect && _colorEffect != _vertexEffect)
-            Destroy(_colorEffect);
+        if (ColorEffect != null && ColorEffect != effect && ColorEffect != VertexEffect)
+            Destroy(ColorEffect);
 
-        _colorEffect = effect;
+        ColorEffect = effect;
         effect?.Initialize(_nameTag, _rig);
     }
 
     public void ClearVertexEffect()
     {
-        if (_vertexEffect != null && _vertexEffect != _colorEffect)
-            Destroy(_vertexEffect);
+        if (VertexEffect != null && VertexEffect != ColorEffect)
+            Destroy(VertexEffect);
 
-        _vertexEffect = null;
+        VertexEffect = null;
         ResetMesh();
     }
 
     public void ClearColorEffect()
     {
-        if (_colorEffect != null && _colorEffect != _vertexEffect)
-            Destroy(_colorEffect);
+        if (ColorEffect != null && ColorEffect != VertexEffect)
+            Destroy(ColorEffect);
 
-        _colorEffect = null;
+        ColorEffect = null;
         ResetMesh();
     }
 
     public void ClearAllEffects()
     {
-        if (_vertexEffect != null) Destroy(_vertexEffect);
-        if (_colorEffect != null && _colorEffect != _vertexEffect) Destroy(_colorEffect);
+        if (VertexEffect != null) Destroy(VertexEffect);
+        if (ColorEffect != null && ColorEffect != VertexEffect) Destroy(ColorEffect);
 
-        _vertexEffect = null;
-        _colorEffect = null;
+        VertexEffect = null;
+        ColorEffect = null;
         ResetMesh();
     }
 
     private void LateUpdate()
     {
         if (!_nameTag) return;
-        if (!_vertexEffect && !_colorEffect) return;
+        if (!VertexEffect && !ColorEffect) return;
 
-        var sameEffect = _vertexEffect && _vertexEffect == _colorEffect;
+        var sameEffect = VertexEffect && VertexEffect == ColorEffect;
 
-        var runVertex = _vertexEffect && _vertexEffect.ShouldAnimateThisFrame();
-        var runColor = sameEffect ? runVertex : (_colorEffect && _colorEffect.ShouldAnimateThisFrame());
+        var runVertex = VertexEffect && VertexEffect.ShouldAnimateThisFrame();
+        var runColor = sameEffect ? runVertex : (ColorEffect && ColorEffect.ShouldAnimateThisFrame());
 
         if (!runVertex && !runColor) return;
 
@@ -106,10 +110,13 @@ public class NameEffectController : MonoBehaviour
             var colors = textInfo.meshInfo[matIdx].colors32;
 
             if (runVertex)
-                _vertexEffect.AnimateCharacter(i, vertIdx, charInfo, verts, colors);
+                VertexEffect.AnimateCharacter(i, vertIdx, charInfo, verts, colors);
 
             if (runColor && !sameEffect)
-                _colorEffect.AnimateCharacter(i, vertIdx, charInfo, verts, colors);
+                ColorEffect.AnimateCharacter(i, vertIdx, charInfo, verts, colors);
+
+            if (runColor && !sameEffect)
+                ColorEffect.AnimateCharacter(i, vertIdx, charInfo, verts, colors);
         }
 
         var flags = TMP_VertexDataUpdateFlags.None;

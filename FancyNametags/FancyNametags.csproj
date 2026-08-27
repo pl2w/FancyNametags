@@ -19,6 +19,10 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(CI)'!='TRUE'">
+        <Reference Include="ComputerInterface">
+            <HintPath>$(GorillaTagDir)/BepInEx/plugins/ComputerInterface/ComputerInterface.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
         <Reference Include="0Harmony">
             <HintPath>$(GorillaTagDir)/BepInEx/core/0Harmony.dll</HintPath>
             <Private>false</Private>
