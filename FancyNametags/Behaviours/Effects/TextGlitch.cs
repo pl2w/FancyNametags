@@ -12,8 +12,8 @@ public class TextGlitch : BaseNameEffect
 
     private float _nextGlitchTime;
 
-    protected override bool ModifyVertices => true;
-    protected override bool ModifyColors => true;
+    protected internal override bool ModifyVertices => true;
+    protected internal override bool ModifyColors => true;
 
     protected internal override bool ShouldAnimateThisFrame()
     {
@@ -22,7 +22,7 @@ public class TextGlitch : BaseNameEffect
         return true;
     }
 
-    protected override void AnimateCharacter(
+    protected internal override void AnimateCharacter(
         int charIndex,
         int vertexIndex,
         TMP_CharacterInfo charInfo,

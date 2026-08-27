@@ -8,10 +8,10 @@ public class ColorWave : BaseNameEffect
     public float speed = 0.5f;
     public float highlightIntensity = 0.5f;
 
-    protected override bool ModifyVertices => false;
-    protected override bool ModifyColors => true;
+    protected internal override bool ModifyVertices => false;
+    protected internal override bool ModifyColors => true;
 
-    protected override void AnimateCharacter(
+    protected internal override void AnimateCharacter(
         int charIndex,
         int vertexIndex,
         TMP_CharacterInfo charInfo,

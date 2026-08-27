@@ -9,10 +9,10 @@ public class TextPulse : BaseNameEffect
     public float amount = 0.3f;
     public float waveFrequency = 0.3f;
 
-    protected override bool ModifyVertices => true;
-    protected override bool ModifyColors => false;
+    protected internal override bool ModifyVertices => true;
+    protected internal override bool ModifyColors => false;
 
-    protected override void AnimateCharacter(
+    protected internal override void AnimateCharacter(
         int charIndex,
         int vertexIndex,
         TMP_CharacterInfo charInfo,

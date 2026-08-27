@@ -7,9 +7,9 @@ public abstract class BaseNameEffect : MonoBehaviour
 {
     protected TMP_Text NameTag;
     protected VRRig Rig;
-
-    protected abstract bool ModifyVertices { get; }
-    protected abstract bool ModifyColors { get; }
+    
+    protected internal abstract bool ModifyVertices { get; }
+    protected internal abstract bool ModifyColors { get; }
 
     public virtual void Initialize(TMP_Text nametag, VRRig rig)
     {
@@ -17,7 +17,7 @@ public abstract class BaseNameEffect : MonoBehaviour
         Rig = rig;
     }
 
-    protected abstract void AnimateCharacter(
+    protected internal abstract void AnimateCharacter(
         int charIndex,
         int vertexIndex,
         TMP_CharacterInfo charInfo,
@@ -26,15 +26,4 @@ public abstract class BaseNameEffect : MonoBehaviour
     );
 
     protected internal virtual bool ShouldAnimateThisFrame() => true;
-
-    internal bool ModifyVerticesInternal => ModifyVertices;
-    internal bool ModifyColorsInternal => ModifyColors;
-
-    internal void AnimateCharacterInternal(
-        int charIndex,
-        int vertexIndex,
-        TMP_CharacterInfo charInfo,
-        Vector3[] vertices,
-        Color32[] colors)
-        => AnimateCharacter(charIndex, vertexIndex, charInfo, vertices, colors);
 }

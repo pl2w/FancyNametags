@@ -22,7 +22,7 @@ public class NameEffectController : MonoBehaviour
 
     public void SetVertexEffect(BaseNameEffect effect)
     {
-        if (effect != null && !effect.ModifyVerticesInternal)
+        if (effect != null && !effect.ModifyVertices)
         {
             Plugin.Log.LogWarning($"{effect.GetType().Name} does not modify vertices, and cannot be used as a vertex effect.");
             return;
@@ -37,7 +37,7 @@ public class NameEffectController : MonoBehaviour
 
     public void SetColorEffect(BaseNameEffect effect)
     {
-        if (effect != null && !effect.ModifyColorsInternal)
+        if (effect != null && !effect.ModifyColors)
         {
             Plugin.Log.LogWarning($"{effect.GetType().Name} does not modify colors, and cannot be used as a color effect.");
             return;
@@ -106,10 +106,10 @@ public class NameEffectController : MonoBehaviour
             var colors = textInfo.meshInfo[matIdx].colors32;
 
             if (runVertex)
-                _vertexEffect.AnimateCharacterInternal(i, vertIdx, charInfo, verts, colors);
+                _vertexEffect.AnimateCharacter(i, vertIdx, charInfo, verts, colors);
 
             if (runColor && !sameEffect)
-                _colorEffect.AnimateCharacterInternal(i, vertIdx, charInfo, verts, colors);
+                _colorEffect.AnimateCharacter(i, vertIdx, charInfo, verts, colors);
         }
 
         var flags = TMP_VertexDataUpdateFlags.None;

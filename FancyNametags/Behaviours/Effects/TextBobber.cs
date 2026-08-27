@@ -9,10 +9,10 @@ public class TextBobber : BaseNameEffect
     public float bounceHeight = 2f;
     public float waveFrequency = 0.4f;
 
-    protected override bool ModifyVertices => true;
-    protected override bool ModifyColors => false;
+    protected internal override bool ModifyVertices => true;
+    protected internal override bool ModifyColors => false;
 
-    protected override void AnimateCharacter(
+    protected internal override void AnimateCharacter(
         int charIndex,
         int vertexIndex,
         TMP_CharacterInfo charInfo,

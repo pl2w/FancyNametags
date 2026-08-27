@@ -10,10 +10,10 @@ public class TextRainbow : BaseNameEffect
     public float brightness = 1f;
     public float hueSpread = 1f;
 
-    protected override bool ModifyVertices => false;
-    protected override bool ModifyColors => true;
+    protected internal override bool ModifyVertices => false;
+    protected internal override bool ModifyColors => true;
 
-    protected override void AnimateCharacter(
+    protected internal override void AnimateCharacter(
         int charIndex,
         int vertexIndex,
         TMP_CharacterInfo charInfo,
