@@ -1,5 +1,5 @@
+using FancyNametags.Behaviours;
 using HarmonyLib;
-using FancyNametags.Effects;
 
 namespace FancyNametags;
 
@@ -9,16 +9,21 @@ public static class VRRigOnEnablePatch
     public static void Postfix(VRRig __instance)
     {
         var nameTagObject = __instance.playerText1.gameObject;
-        if (nameTagObject.GetComponent<NameEffectController>())
-            return;
+        var controller = nameTagObject.GetComponent<NameEffectController>();
+        if (controller == null)
+            controller = nameTagObject.AddComponent<NameEffectController>();
 
-        var controller = nameTagObject.AddComponent<NameEffectController>();
         controller.Initialize(__instance.playerText1, __instance);
 
-        var bobber = nameTagObject.AddComponent<TextBobber>();
-        controller.SetVertexEffect(bobber);
+        NameEffectRegistry.Register(__instance.Creator, controller);
+    }
+}
 
-        var wave = nameTagObject.AddComponent<ColorWave>();
-        controller.SetColorEffect(wave);
+[HarmonyPatch(typeof(VRRig), "OnDisable")]
+public static class VRRigOnDisablePatch
+{
+    public static void Prefix(VRRig __instance)
+    {
+        NameEffectRegistry.Unregister(__instance.Creator);
     }
 }

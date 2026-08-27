@@ -1,7 +1,8 @@
+using FancyNametags.Effects;
 using TMPro;
 using UnityEngine;
 
-namespace FancyNametags.Effects;
+namespace FancyNametags.Behaviours;
 
 public class NameEffectController : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class NameEffectController : MonoBehaviour
 
     public void Initialize(TMP_Text nameTag, VRRig rig)
     {
+        ClearAllEffects();
+        
         _nameTag = nameTag;
         _rig = rig;
     }
@@ -53,7 +56,7 @@ public class NameEffectController : MonoBehaviour
             Destroy(_vertexEffect);
 
         _vertexEffect = null;
-        ResetNameTag();
+        ResetMesh();
     }
 
     public void ClearColorEffect()
@@ -62,7 +65,7 @@ public class NameEffectController : MonoBehaviour
             Destroy(_colorEffect);
 
         _colorEffect = null;
-        ResetNameTag();
+        ResetMesh();
     }
 
     public void ClearAllEffects()
@@ -72,7 +75,7 @@ public class NameEffectController : MonoBehaviour
 
         _vertexEffect = null;
         _colorEffect = null;
-        ResetNameTag();
+        ResetMesh();
     }
 
     private void LateUpdate()
@@ -80,16 +83,17 @@ public class NameEffectController : MonoBehaviour
         if (!_nameTag) return;
         if (!_vertexEffect && !_colorEffect) return;
 
+        var sameEffect = _vertexEffect && _vertexEffect == _colorEffect;
+
         var runVertex = _vertexEffect && _vertexEffect.ShouldAnimateThisFrame();
-        var runColor = _colorEffect && _colorEffect.ShouldAnimateThisFrame();
+        var runColor = sameEffect ? runVertex : (_colorEffect && _colorEffect.ShouldAnimateThisFrame());
+
         if (!runVertex && !runColor) return;
 
         _nameTag.ForceMeshUpdate();
 
         var textInfo = _nameTag.textInfo;
         if (textInfo.characterCount == 0) return;
-
-        var sameEffect = _vertexEffect && _vertexEffect == _colorEffect;
 
         for (var i = 0; i < textInfo.characterCount; i++)
         {
@@ -114,13 +118,13 @@ public class NameEffectController : MonoBehaviour
         _nameTag.UpdateVertexData(flags);
     }
 
-    public void ResetNameTag()
+    private void ResetMesh()
     {
         if (!_nameTag) return;
         _nameTag.ForceMeshUpdate();
         _nameTag.UpdateVertexData(TMP_VertexDataUpdateFlags.Vertices | TMP_VertexDataUpdateFlags.Colors32);
     }
 
-    private void OnDisable() => ResetNameTag();
-    private void OnDestroy() => ResetNameTag();
+    private void OnDisable() => ClearAllEffects();
+    private void OnDestroy() => ClearAllEffects();
 }
