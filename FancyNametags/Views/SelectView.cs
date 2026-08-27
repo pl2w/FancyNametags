@@ -106,16 +106,27 @@ public class SelectView : ComputerView
         var effectType = _effectEntries[index].EffectComponentType;
         var effect = controller.gameObject.AddComponent(effectType) as BaseNameEffect;
 
-        if (effect!.ModifyVertices)
+        var oldVertex = controller.VertexEffect;
+        var oldColor = controller.ColorEffect;
+
+        bool clearVertex = oldVertex &&
+            ((effect.ModifyVertices && oldVertex.ModifyVertices) ||
+             (effect.ModifyColors && oldVertex.ModifyColors));
+
+        bool clearColor = oldColor &&
+            ((effect.ModifyVertices && oldColor.ModifyVertices) ||
+             (effect.ModifyColors && oldColor.ModifyColors));
+
+        if (clearVertex) controller.ClearVertexEffect();
+        if (clearColor) controller.ClearColorEffect();
+
+        if (effect.ModifyVertices && effect.ModifyColors)
         {
-            if (controller.VertexEffect?.GetType() == effectType) controller.ClearVertexEffect();
-            else controller.SetVertexEffect(effect);
+            controller.SetColorEffect(effect);
+            controller.SetVertexEffect(effect);
         }
-        else
-        {
-            if (controller.ColorEffect?.GetType() == effectType) controller.ClearColorEffect();
-            else controller.SetColorEffect(effect);
-        }
+        else if (effect.ModifyVertices) controller.SetVertexEffect(effect);
+        else if (effect.ModifyColors) controller.SetColorEffect(effect);
     }
 
     private class Entry(string effectName, Type effectComponentType)
