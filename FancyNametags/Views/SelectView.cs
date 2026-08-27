@@ -6,6 +6,8 @@ using ComputerInterface.Interfaces;
 using ComputerInterface.Models;
 using UnityEngine;
 using System;
+using System.Linq;
+using FancyNametags.Behaviours;
 using FancyNametags.Effects;
 
 namespace FancyNametags.Views;
@@ -16,8 +18,7 @@ public class SelectView : ComputerView
 
     private readonly string _header;
 
-    private readonly Entry[] _effectEntries;
-    private readonly UIElementPageHandler<Entry> _pageHandler;
+    private readonly UIElementPageHandler<EffectEntry> _pageHandler;
     private readonly UISelectionHandler _selectionHandler;
 
     public string ActiveError;
@@ -35,21 +36,13 @@ public class SelectView : ComputerView
             .AppendLines(1)
             .ToString();
 
-        _effectEntries = [
-            new Entry("Color Wave", typeof(ColorWave)),
-            new Entry("Bobber", typeof(TextBobber)),
-            new Entry("Glitch", typeof(TextGlitch)),
-            new Entry("Pulse", typeof(TextPulse)),
-            new Entry("Rainbow", typeof(TextRainbow)),
-        ];
-
-        _pageHandler = new UIElementPageHandler<Entry>(EKeyboardButton.Left, EKeyboardButton.Right);
-        _pageHandler.SetElements(_effectEntries);
+        _pageHandler = new UIElementPageHandler<EffectEntry>(EKeyboardButton.Left, EKeyboardButton.Right);
+        _pageHandler.SetElements(NameEffectRegistry.Entries.ToArray());
         _pageHandler.EntriesPerPage = 8;
 
         _selectionHandler = new UISelectionHandler(EKeyboardButton.Up, EKeyboardButton.Down, EKeyboardButton.Enter);
         _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>> </color>", "", "  ", "");
-        _selectionHandler.MaxIndex = _effectEntries.Length - 1;
+        _selectionHandler.MaxIndex = NameEffectRegistry.Entries.Count - 1;
         _selectionHandler.OnSelected += SetEffect;
     }
 
@@ -62,7 +55,7 @@ public class SelectView : ComputerView
             .AppendLine(ActiveError)
             .EndAlign();
 
-        var controller = Behaviours.NameEffectRegistry.LocalController;
+        var controller = NameEffectControllers.LocalController;
         _pageHandler.EnumerateElements((entry, relativeIndex) =>
         {
             int index = _pageHandler.GetAbsoluteIndex(_pageHandler.CurrentPage, relativeIndex);
@@ -89,7 +82,7 @@ public class SelectView : ComputerView
 
         if (key == EKeyboardButton.Option1)
         {
-            Behaviours.NameEffectRegistry.LocalController.ClearAllEffects();
+            NameEffectControllers.LocalController.ClearAllEffects();
             return;
         }
 
@@ -101,9 +94,8 @@ public class SelectView : ComputerView
 
     private void SetEffect(int index)
     {
-        var controller = Behaviours.NameEffectRegistry.LocalController;
-
-        var effectType = _effectEntries[index].EffectComponentType;
+        var controller = NameEffectControllers.LocalController;
+        var effectType = NameEffectRegistry.Entries[index].EffectComponentType;
         var effect = controller.gameObject.AddComponent(effectType) as BaseNameEffect;
 
         var oldVertex = controller.VertexEffect;
@@ -127,12 +119,6 @@ public class SelectView : ComputerView
         }
         else if (effect.ModifyVertices) controller.SetVertexEffect(effect);
         else if (effect.ModifyColors) controller.SetColorEffect(effect);
-    }
-
-    private class Entry(string effectName, Type effectComponentType)
-    {
-        public string EffectName { get; } = effectName;
-        public Type EffectComponentType { get; } = effectComponentType;
     }
 }
 

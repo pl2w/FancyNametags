@@ -17,11 +17,11 @@ public static class VRRigOnEnablePatch
 
         if (__instance.isLocal)
         {
-            NameEffectRegistry.LocalController = controller;
+            NameEffectControllers.LocalController = controller;
             return;
         }
 
-        NameEffectRegistry.Register(__instance.Creator, controller);
+        NameEffectControllers.Register(__instance.Creator, controller);
     }
 }
 
@@ -30,6 +30,6 @@ public static class VRRigOnDisablePatch
 {
     public static void Prefix(VRRig __instance)
     {
-        NameEffectRegistry.Unregister(__instance.Creator);
+        NameEffectControllers.Unregister(__instance.Creator);
     }
 }

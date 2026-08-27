@@ -1,25 +1,31 @@
+using System;
 using System.Collections.Generic;
+using FancyNametags.Effects;
 
 namespace FancyNametags.Behaviours;
 
 public static class NameEffectRegistry
 {
-    private static readonly Dictionary<NetPlayer, NameEffectController> Controllers = new();
+    private static readonly List<EffectEntry> _entries = new();
+    public static IReadOnlyList<EffectEntry> Entries => _entries;
 
-    public static NameEffectController LocalController;
-
-    public static void Register(NetPlayer player, NameEffectController controller)
+    public static void Register(string displayName, Type effectComponentType)
     {
-        if (player == null) return;
-        Controllers[player] = controller;
+        if (effectComponentType == null || !typeof(BaseNameEffect).IsAssignableFrom(effectComponentType))
+            throw new ArgumentException($"{effectComponentType} must derive from BaseNameEffect", nameof(effectComponentType));
+
+        if (_entries.Exists(e => e.EffectComponentType == effectComponentType))
+            return;
+
+        _entries.Add(new EffectEntry(displayName, effectComponentType));
     }
 
-    public static void Unregister(NetPlayer player)
+    public static void RegisterDefaults()
     {
-        if (player == null) return;
-        Controllers.Remove(player);
+        Register("Color Wave", typeof(ColorWave));
+        Register("Bobber", typeof(TextBobber));
+        Register("Glitch", typeof(TextGlitch));
+        Register("Pulse", typeof(TextPulse));
+        Register("Rainbow", typeof(TextRainbow));
     }
-
-    public static bool TryGet(NetPlayer player, out NameEffectController controller)
-        => Controllers.TryGetValue(player, out controller);
 }

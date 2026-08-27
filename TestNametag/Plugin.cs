@@ -1,9 +1,18 @@
 using BepInEx;
+using FancyNametags.Behaviours;
+using FancyNametags.Effects;
 
 namespace TestNametag;
 
 [BepInPlugin(PluginInfo.Guid, PluginInfo.Name, PluginInfo.Version)]
-public class Plugin : BaseUnityPlugin;
+[BepInDependency(FancyNametags.PluginInfo.Guid)]
+public class Plugin : BaseUnityPlugin
+{
+    public Plugin()
+    {
+        NameEffectRegistry.Register("TestEffect", typeof(TestEffect));
+    }
+}
 
 public static class PluginInfo
 {

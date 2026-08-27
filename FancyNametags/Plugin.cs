@@ -1,6 +1,7 @@
 using System.Reflection;
 using BepInEx;
 using BepInEx.Logging;
+using FancyNametags.Behaviours;
 using HarmonyLib;
 
 namespace FancyNametags;
@@ -15,6 +16,8 @@ public class Plugin : BaseUnityPlugin
     public void Awake()
     {
         Log = Logger;
+
+        NameEffectRegistry.RegisterDefaults();
 
         _harmony = new Harmony(PluginInfo.Guid);
         _harmony.PatchAll(Assembly.GetExecutingAssembly());
