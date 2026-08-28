@@ -11,7 +11,7 @@ public abstract class BaseNameEffect : MonoBehaviour
     protected internal abstract bool ModifyVertices { get; }
     protected internal abstract bool ModifyColors { get; }
 
-    public virtual void Initialize(TMP_Text nametag, VRRig rig)
+    public virtual void Initialize(TMP_Text nametag, VRRig rig, object data = null)
     {
         NameTag = nametag;
         Rig = rig;

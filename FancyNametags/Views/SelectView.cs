@@ -97,6 +97,7 @@ public class SelectView : ComputerView
         var controller = NameEffectControllers.LocalController;
         var effectType = NameEffectRegistry.Entries[index].EffectComponentType;
         var effect = controller.gameObject.AddComponent(effectType) as BaseNameEffect;
+        object effectData = NameEffectRegistry.Entries[index].OptionalData;
 
         var oldVertex = controller.VertexEffect;
         var oldColor = controller.ColorEffect;
@@ -114,11 +115,11 @@ public class SelectView : ComputerView
 
         if (effect.ModifyVertices && effect.ModifyColors)
         {
-            controller.SetColorEffect(effect);
-            controller.SetVertexEffect(effect);
+            controller.SetColorEffect(effect, effectData);
+            controller.SetVertexEffect(effect, effectData);
         }
-        else if (effect.ModifyVertices) controller.SetVertexEffect(effect);
-        else if (effect.ModifyColors) controller.SetColorEffect(effect);
+        else if (effect.ModifyVertices) controller.SetVertexEffect(effect, effectData);
+        else if (effect.ModifyColors) controller.SetColorEffect(effect, effectData);
     }
 }
 
