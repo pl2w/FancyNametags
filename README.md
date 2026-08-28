@@ -1,6 +1,6 @@
 # Fancy Nametags
 
-Makes your nametag fancy!
+> Makes your nametag fancy!
 
 ---
 
