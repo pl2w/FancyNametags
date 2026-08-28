@@ -22,7 +22,7 @@ public class LuaNameEffect : BaseNameEffect
             return;
         }
 
-        _state = new Lua(); // todo: fix memory leak
+        _state = SafeLua();
         _state.DoFile(luaFile);
 
         _state["Color32"] = (Func<double, double, double, double, Color32>)((r, g, b, a) => new Color32((byte)r, (byte)g, (byte)b, (byte)a));
@@ -48,5 +48,26 @@ public class LuaNameEffect : BaseNameEffect
          _state["Vertices"] = vertices;
 
          _luaAnimateCharacter.Call(charIndex, vertexIndex);
+    }
+
+    private void OnDestroy()
+    {
+        _state?.Dispose();
+    }
+
+    // danger list http://lua-users.org/wiki/SandBoxes
+    public static Lua SafeLua()
+    {
+        var lua = new Lua();
+        lua.DoString(@"
+            luanet = nil
+            import = nil
+            os, io, package, debug = nil, nil, nil, nil
+            require, module, dofile, loadfile, load, loadstring = nil, nil, nil, nil, nil, nil
+            getmetatable, setmetatable, rawget, rawset, rawequal = nil, nil, nil, nil, nil
+            collectgarbage, newproxy, getfenv, setfenv = nil, nil, nil, nil
+            if string then string.dump = nil end
+        ");
+        return lua;
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FancyNametags.Effects;
-using NLua;
 using NLua.Exceptions;
 
 namespace FancyNametags.Behaviours;
@@ -45,7 +44,7 @@ public static class NameEffectRegistry
         {
             try
             {
-                using var lua = new Lua();
+                using var lua = LuaNameEffect.SafeLua();
                 lua.DoFile(file);
 
                 string name = (string)lua["EffectName"];
