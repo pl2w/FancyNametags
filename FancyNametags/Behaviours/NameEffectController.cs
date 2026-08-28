@@ -1,3 +1,4 @@
+using System;
 using FancyNametags.Effects;
 using TMPro;
 using UnityEngine;
@@ -14,10 +15,10 @@ public class NameEffectController : MonoBehaviour
 
     public void Initialize(TMP_Text nameTag, VRRig rig)
     {
-        ClearAllEffects();
-
         _nameTag = nameTag;
         _rig = rig;
+        
+        ClearAllEffects();
     }
 
     public void SetVertexEffect(BaseNameEffect effect, object effectData)
@@ -124,9 +125,17 @@ public class NameEffectController : MonoBehaviour
 
     private void ResetMesh()
     {
-        if (!_nameTag) return;
-        _nameTag.ForceMeshUpdate();
-        _nameTag.UpdateVertexData(TMP_VertexDataUpdateFlags.Vertices | TMP_VertexDataUpdateFlags.Colors32);
+        if (!_nameTag || !_nameTag.isActiveAndEnabled) return;
+
+        try
+        {
+            _nameTag.ForceMeshUpdate();
+            _nameTag.UpdateVertexData(TMP_VertexDataUpdateFlags.Vertices | TMP_VertexDataUpdateFlags.Colors32);
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogDebug($"reset mesh skipped, nametag not ready yet: {ex.Message}");
+        }
     }
 
     private void OnDisable() => ClearAllEffects();
