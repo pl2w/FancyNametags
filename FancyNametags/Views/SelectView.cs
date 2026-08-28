@@ -55,7 +55,7 @@ public class SelectView : ComputerView
             .AppendLine(ActiveError)
             .EndAlign();
 
-        var controller = NameEffectControllers.LocalController;
+        var controller = NameEffectControllerRegistry.LocalController;
         _pageHandler.EnumerateElements((entry, relativeIndex) =>
         {
             int index = _pageHandler.GetAbsoluteIndex(_pageHandler.CurrentPage, relativeIndex);
@@ -82,7 +82,8 @@ public class SelectView : ComputerView
 
         if (key == EKeyboardButton.Option1)
         {
-            NameEffectControllers.LocalController.ClearAllEffects();
+            NameEffectControllerRegistry.LocalController.ClearAllEffects();
+            NameEffectNetworking.PublishLocalEffects(NameEffectControllerRegistry.LocalController);
             return;
         }
 
@@ -94,7 +95,7 @@ public class SelectView : ComputerView
 
     private void SetEffect(int index)
     {
-        var controller = NameEffectControllers.LocalController;
+        var controller = NameEffectControllerRegistry.LocalController;
         var effectType = NameEffectRegistry.Entries[index].EffectComponentType;
         var effect = controller.gameObject.AddComponent(effectType) as BaseNameEffect;
 
@@ -119,6 +120,8 @@ public class SelectView : ComputerView
         }
         else if (effect.ModifyVertices) controller.SetVertexEffect(effect);
         else if (effect.ModifyColors) controller.SetColorEffect(effect);
+        
+        NameEffectNetworking.PublishLocalEffects(controller);
     }
 }
 

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace FancyNametags.Behaviours;
 
-public static class NameEffectControllers
+public static class NameEffectControllerRegistry
 {
     private static readonly Dictionary<NetPlayer, NameEffectController> Controllers = new();
 

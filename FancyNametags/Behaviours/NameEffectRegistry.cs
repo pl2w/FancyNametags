@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using FancyNametags.Effects;
 
 namespace FancyNametags.Behaviours;
@@ -19,6 +20,14 @@ public static class NameEffectRegistry
 
         _entries.Add(new EffectEntry(displayName, effectComponentType));
     }
+    
+    public static bool TryGetById(string id, out EffectEntry entry)
+    {
+        entry = Entries.FirstOrDefault(e => e.EffectComponentType.FullName == id);
+        return entry != null;
+    }
+
+    public static string GetId(Type effectComponentType) => effectComponentType?.FullName;
 
     public static void RegisterDefaults()
     {

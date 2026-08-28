@@ -17,11 +17,15 @@ public static class VRRigOnEnablePatch
 
         if (__instance.isLocal)
         {
-            NameEffectControllers.LocalController = controller;
+            NameEffectControllerRegistry.LocalController = controller;
             return;
         }
 
-        NameEffectControllers.Register(__instance.Creator, controller);
+        NameEffectControllerRegistry.Register(__instance.Creator, controller);
+
+        var photonPlayer = __instance.Creator?.GetPlayerRef();
+        if (photonPlayer != null)
+            NameEffectNetworking.ApplyFromProperties(photonPlayer, controller);
     }
 }
 
@@ -30,6 +34,6 @@ public static class VRRigOnDisablePatch
 {
     public static void Prefix(VRRig __instance)
     {
-        NameEffectControllers.Unregister(__instance.Creator);
+        NameEffectControllerRegistry.Unregister(__instance.Creator);
     }
 }

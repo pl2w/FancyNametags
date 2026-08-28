@@ -17,10 +17,14 @@ public class Plugin : BaseUnityPlugin
     {
         Log = Logger;
 
-        NameEffectRegistry.RegisterDefaults();
-
         _harmony = new Harmony(PluginInfo.Guid);
         _harmony.PatchAll(Assembly.GetExecutingAssembly());
+        
+        GorillaTagger.OnPlayerSpawned(delegate
+        {
+            NameEffectRegistry.RegisterDefaults();
+            NameEffectNetworking.Initialize();
+        });
     }
 }
 
