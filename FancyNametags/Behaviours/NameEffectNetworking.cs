@@ -29,7 +29,7 @@ public static class NameEffectNetworking
         var props = new Hashtable
         {
             [VertexProp] = NameEffectRegistry.GetId(controller.VertexEffect?.GetType()) ?? string.Empty,
-            [ColorProp]  = NameEffectRegistry.GetId(controller.ColorEffect?.GetType()) ?? string.Empty
+            [ColorProp] = NameEffectRegistry.GetId(controller.ColorEffect?.GetType()) ?? string.Empty
         };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
     }
@@ -41,7 +41,7 @@ public static class NameEffectNetworking
         controller.ClearAllEffects();
 
         string vertexId = photonPlayer.CustomProperties.TryGetValue(VertexProp, out var v) ? v as string : null;
-        string colorId  = photonPlayer.CustomProperties.TryGetValue(ColorProp, out var c) ? c as string : null;
+        string colorId = photonPlayer.CustomProperties.TryGetValue(ColorProp, out var c) ? c as string : null;
 
         BaseNameEffect vertexEffect = null;
         BaseNameEffect colorEffect = null;

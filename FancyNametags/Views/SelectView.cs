@@ -121,7 +121,7 @@ public class SelectView : ComputerView
         }
         else if (effect.ModifyVertices) controller.SetVertexEffect(effect, effectData);
         else if (effect.ModifyColors) controller.SetColorEffect(effect, effectData);
-        
+
         NameEffectNetworking.PublishLocalEffects(controller);
     }
 }

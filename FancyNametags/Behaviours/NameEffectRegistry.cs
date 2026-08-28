@@ -22,7 +22,7 @@ public static class NameEffectRegistry
 
         _entries.Add(new EffectEntry(displayName, effectComponentType, data));
     }
-    
+
     public static bool TryGetById(string id, out EffectEntry entry)
     {
         entry = Entries.FirstOrDefault(e => e.EffectComponentType.FullName == id);
