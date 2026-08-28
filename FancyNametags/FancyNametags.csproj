@@ -11,11 +11,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all"/>
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+        <PackageReference Include="NLua" Version="1.7.9" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(CI)'=='TRUE'">
-        <PackageReference Include="gorillatag" Version="*"/>
+        <PackageReference Include="gorillatag" Version="*" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(CI)'!='TRUE'">
@@ -139,10 +140,11 @@
         </Reference>
     </ItemGroup>
 
-    <Import Project="Directory.Build.local.props" Condition="Exists('Directory.Build.local.props')"/>
+    <Import Project="Directory.Build.local.props" Condition="Exists('Directory.Build.local.props')" />
 
     <Target Name="PostBuild_CopyToBepInEx" AfterTargets="Build" Condition="Exists('$(GorillaTagDir)')">
-        <MakeDir Directories="$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)"/>
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)" SkipUnchangedFiles="true"/>
+        <MakeDir Directories="$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="bin/Debug/$(TargetFramework)/$(ProjectName).pdb" DestinationFiles="$(GORILLATAG_PATH)/BepInEx/plugins/$(ProjectName)/$(ProjectName).pdb" />
     </Target>
 </Project>
