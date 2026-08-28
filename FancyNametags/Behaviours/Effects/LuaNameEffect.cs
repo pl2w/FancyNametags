@@ -14,7 +14,7 @@ public class LuaNameEffect : BaseNameEffect
     private LuaFunction _luaAnimateCharacter;
     private bool _initialized;
 
-    public override void Initialize(TMP_Text nametag, VRRig rig, object data)
+    public override void Initialize(TMP_Text nametag, VRRig rig, object data = null)
     {
         base.Initialize(nametag, rig, data);
 
@@ -30,7 +30,7 @@ public class LuaNameEffect : BaseNameEffect
             _state.DoFile(luaFile);
 
             _state["Color32"] = (Func<double, double, double, double, Color32>)((r, g, b, a) => new Color32((byte)r, (byte)g, (byte)b, (byte)a));
-            _state["HSVToRGB"] = (Func<float, float, float, Color32>)((h, s, v) => (Color32)Color.HSVToRGB(h, s, v));
+            _state["HSVToRGB"] = (Func<float, float, float, Color32>)((h, s, v) => Color.HSVToRGB(h, s, v));
 
             _state["GetCharacterCount"] = () => NameTag.textInfo.characterCount;
             _state["GetTime"] = () => Time.time;
