@@ -145,6 +145,6 @@
     <Target Name="PostBuild_CopyToBepInEx" AfterTargets="Build" Condition="Exists('$(GorillaTagDir)')">
         <MakeDir Directories="$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)" />
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)" SkipUnchangedFiles="true" />
-        <Copy SourceFiles="bin/Debug/$(TargetFramework)/$(ProjectName).pdb" DestinationFiles="$(GORILLATAG_PATH)/BepInEx/plugins/$(ProjectName)/$(ProjectName).pdb" />
+        <Copy SourceFiles="$(TargetDir)$(ProjectName).pdb" DestinationFolder="$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)" SkipUnchangedFiles="true" />
     </Target>
 </Project>
