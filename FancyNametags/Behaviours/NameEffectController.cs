@@ -114,9 +114,6 @@ public class NameEffectController : MonoBehaviour
 
             if (runColor && !sameEffect)
                 ColorEffect.AnimateCharacter(i, vertIdx, charInfo, verts, colors);
-
-            if (runColor && !sameEffect)
-                ColorEffect.AnimateCharacter(i, vertIdx, charInfo, verts, colors);
         }
 
         var flags = TMP_VertexDataUpdateFlags.None;

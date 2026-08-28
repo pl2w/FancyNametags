@@ -45,20 +45,31 @@ public static class NameEffectNetworking
 
         BaseNameEffect vertexEffect = null;
         BaseNameEffect colorEffect = null;
+        object vertexData = null;
+        object colorData = null;
 
         if (!string.IsNullOrEmpty(vertexId) && NameEffectRegistry.TryGetById(vertexId, out var vEntry))
+        {
             vertexEffect = controller.gameObject.AddComponent(vEntry.EffectComponentType) as BaseNameEffect;
+            vertexData = vEntry.OptionalData;
+        }
 
         if (!string.IsNullOrEmpty(colorId))
         {
             if (colorId == vertexId && vertexEffect != null)
+            {
                 colorEffect = vertexEffect;
+                colorData = vertexData;
+            }
             else if (NameEffectRegistry.TryGetById(colorId, out var cEntry))
+            {
                 colorEffect = controller.gameObject.AddComponent(cEntry.EffectComponentType) as BaseNameEffect;
+                colorData = cEntry.OptionalData;
+            }
         }
 
-        if (vertexEffect != null) controller.SetVertexEffect(vertexEffect);
-        if (colorEffect != null) controller.SetColorEffect(colorEffect);
+        if (vertexEffect != null) controller.SetVertexEffect(vertexEffect, vertexData);
+        if (colorEffect != null) controller.SetColorEffect(colorEffect, colorData);
     }
 
     private class PropertyListener : IInRoomCallbacks
