@@ -147,6 +147,7 @@
 
     <Target Name="PostBuild_CopyToBepInEx" AfterTargets="Build" Condition="Exists('$(GorillaTagDir)')">
         <PropertyGroup>
+            <SolutionName Condition="'$(SolutionName)' == '' or '$(SolutionName)' == '*Undefined*'">$(ProjectName)</SolutionName>
             <PluginsDir>$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)</PluginsDir>
         </PropertyGroup>
         <MakeDir Directories="$(PluginsDir)" />

@@ -14,14 +14,9 @@ public static class NameEffectNetworking
 
     public static void Initialize()
     {
+        if (_listener != null) return;
         _listener = new PropertyListener();
         PhotonNetwork.AddCallbackTarget(_listener);
-    }
-
-    public static void Deinitialize()
-    {
-        if (_listener != null)
-            PhotonNetwork.RemoveCallbackTarget(_listener);
     }
 
     public static void PublishLocalEffects(NameEffectController controller)

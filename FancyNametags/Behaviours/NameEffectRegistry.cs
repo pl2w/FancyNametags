@@ -22,7 +22,7 @@ public static class NameEffectRegistry
 
         if (id is null)
             id = data is string luaFile
-                ? $"lua:{Path.GetRelativePath(BepInEx.Paths.PluginPath, luaFile)}"
+                ? $"lua:{Path.GetRelativePath(Path.GetDirectoryName(typeof(NameEffectRegistry).Assembly.Location), luaFile)}"
                 : effectComponentType.FullName;
 
         if (_entries.Exists(e => e.Id == id))

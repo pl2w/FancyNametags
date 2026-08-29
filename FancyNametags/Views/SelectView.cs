@@ -54,7 +54,18 @@ public class SelectView : ComputerView
     private void RefreshEntries()
     {
         _pageHandler.SetElements(NameEffectRegistry.Entries.ToArray());
-        _selectionHandler.MaxIndex = Math.Max(0, NameEffectRegistry.Entries.Count - 1);
+        SyncSelectionToPage();
+    }
+
+    private void SyncSelectionToPage()
+    {
+        int entriesPerPage = _pageHandler.EntriesPerPage;
+        int firstIndex = _pageHandler.CurrentPage * entriesPerPage;
+        int lastIndex = Math.Min(firstIndex + entriesPerPage, NameEffectRegistry.Entries.Count) - 1;
+
+        int relative = _selectionHandler.CurrentSelectionIndex % entriesPerPage;
+        _selectionHandler.MaxIndex = lastIndex;
+        _selectionHandler.CurrentSelectionIndex = Math.Min(firstIndex + relative, _selectionHandler.MaxIndex);
     }
 
     protected override string GetViewText()
@@ -70,16 +81,14 @@ public class SelectView : ComputerView
         _pageHandler.EnumerateElements((entry, relativeIndex) =>
         {
             int index = _pageHandler.GetAbsoluteIndex(_pageHandler.CurrentPage, relativeIndex);
-            string color = controller != null && (
-                controller.VertexEffect?.GetType() == entry.EffectComponentType ||
-                controller.ColorEffect?.GetType() == entry.EffectComponentType)
-                ? "green"
-                : "white";
-            string text = _selectionHandler.GetIndicatedText(index, $"<color={color}>{entry.EffectName}</color>");
+            bool isLua = entry.EffectComponentType == typeof(LuaNameEffect);
+            string color = IsEffectActive(controller, entry.Id) ? "green" : "white";
+            string luaTag = isLua ? "<color=#00FFFF>[LUA] </color>" : "";
+            string text = _selectionHandler.GetIndicatedText(index, $"<color={color}>{luaTag}{entry.EffectName}</color>");
             stringBuilder.AppendLine(text);
         });
 
-        // pageHandler.AppendFooter(stringBuilder);
+        _pageHandler.AppendFooter(stringBuilder);
         return stringBuilder.ToString();
     }
 
@@ -105,7 +114,16 @@ public class SelectView : ComputerView
             return;
         }
 
-        if (_pageHandler.HandleButtonPress(key) || _selectionHandler.HandleButtonPress(key))
+        int pageBefore = _pageHandler.CurrentPage;
+        bool pageChanged = _pageHandler.HandleButtonPress(key);
+        if (pageChanged)
+        {
+            if (_pageHandler.CurrentPage != pageBefore) SyncSelectionToPage();
+            UpdateViewScreen();
+            return;
+        }
+
+        if (_selectionHandler.HandleButtonPress(key))
         {
             UpdateViewScreen();
         }
@@ -119,14 +137,19 @@ public class SelectView : ComputerView
         var entry = NameEffectRegistry.Entries[index];
         var effectType = entry.EffectComponentType;
 
-        if (IsEffectActive(controller, effectType))
+        if (IsEffectActive(controller, entry.Id))
         {
-            DisableEffect(controller, effectType);
+            DisableEffect(controller, entry.Id);
             NameEffectNetworking.PublishLocalEffects(controller);
             return;
         }
 
         var effect = controller.gameObject.AddComponent(effectType) as BaseNameEffect;
+        if (effect == null)
+        {
+            Views.SelectView.Instance.ActiveError = $"Failed to create effect '{entry.EffectName}'";
+            return;
+        }
         effect.EffectId = entry.Id;
         object effectData = entry.OptionalData;
 
@@ -155,17 +178,18 @@ public class SelectView : ComputerView
         NameEffectNetworking.PublishLocalEffects(controller);
     }
 
-    private static bool IsEffectActive(NameEffectController controller, Type effectType)
+    private static bool IsEffectActive(NameEffectController controller, string effectId)
     {
-        if (controller.VertexEffect != null && controller.VertexEffect.GetType() == effectType) return true;
-        if (controller.ColorEffect != null && controller.ColorEffect.GetType() == effectType) return true;
+        if (controller == null) return false;
+        if (controller.VertexEffect != null && controller.VertexEffect.EffectId == effectId) return true;
+        if (controller.ColorEffect != null && controller.ColorEffect.EffectId == effectId) return true;
         return false;
     }
 
-    private static void DisableEffect(NameEffectController controller, Type effectType)
+    private static void DisableEffect(NameEffectController controller, string effectId)
     {
-        bool vertexMatches = controller.VertexEffect != null && controller.VertexEffect.GetType() == effectType;
-        bool colorMatches = controller.ColorEffect != null && controller.ColorEffect.GetType() == effectType;
+        bool vertexMatches = controller.VertexEffect != null && controller.VertexEffect.EffectId == effectId;
+        bool colorMatches = controller.ColorEffect != null && controller.ColorEffect.EffectId == effectId;
 
         if (vertexMatches) controller.ClearVertexEffect();
         if (colorMatches && controller.ColorEffect != controller.VertexEffect) controller.ClearColorEffect();
