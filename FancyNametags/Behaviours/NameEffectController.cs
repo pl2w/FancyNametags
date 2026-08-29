@@ -17,7 +17,7 @@ public class NameEffectController : MonoBehaviour
     {
         _nameTag = nameTag;
         _rig = rig;
-        
+
         ClearAllEffects();
     }
 

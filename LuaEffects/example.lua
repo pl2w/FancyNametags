@@ -5,12 +5,12 @@ local hueSpread = 1
 
 EffectName = "My Fancy Name Effect"
 
-function AnimateCharacter (charIndex, vertexIndex)
+function AnimateCharacter(charIndex, vertexIndex)
     local totalChars = GetCharacterCount()
     local charOffset = charIndex / math.max(1, totalChars - 1)
 
     local hue = (GetTime() * speed - charOffset * hueSpread) % 1
-    if (hue < 0) then
+    if hue < 0 then
         hue = hue + 1
     end
 

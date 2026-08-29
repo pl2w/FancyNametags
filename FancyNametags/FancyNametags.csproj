@@ -153,5 +153,9 @@
         <Copy SourceFiles="$(TargetDir)NLua.dll" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" />
         <Copy SourceFiles="$(TargetDir)KeraLua.dll" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" />
         <Copy SourceFiles="$(NuGetPackageRoot)keralua/1.4.9/runtimes/win-x64/native/lua54.dll" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" />
+        <ItemGroup>
+            <LuaEffectFiles Include="$(MSBuildThisFileDirectory)../LuaEffects/*.lua" />
+        </ItemGroup>
+        <Copy SourceFiles="@(LuaEffectFiles)" DestinationFolder="$(PluginsDir)/LuaEffects" SkipUnchangedFiles="true" />
     </Target>
 </Project>

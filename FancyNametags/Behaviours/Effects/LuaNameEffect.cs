@@ -7,12 +7,15 @@ namespace FancyNametags.Effects;
 
 public class LuaNameEffect : BaseNameEffect
 {
-    protected internal override bool ModifyVertices => false;
+    protected internal override bool ModifyVertices => true;
     protected internal override bool ModifyColors => true;
 
     private Lua _state;
     private LuaFunction _luaAnimateCharacter;
     private bool _initialized;
+    private int _lastFrame = -1;
+    private Vector3[] _lastVertices;
+    private Color32[] _lastColors;
 
     public override void Initialize(TMP_Text nametag, VRRig rig, object data = null)
     {
@@ -31,6 +34,7 @@ public class LuaNameEffect : BaseNameEffect
 
             _state["Color32"] = (Func<double, double, double, double, Color32>)((r, g, b, a) => new Color32((byte)r, (byte)g, (byte)b, (byte)a));
             _state["HSVToRGB"] = (Func<float, float, float, Color32>)((h, s, v) => Color.HSVToRGB(h, s, v));
+            _state["Vector3"] = (Func<float, float, float, Vector3>)((x, y, z) => new Vector3(x, y, z));
 
             _state["GetCharacterCount"] = () => NameTag.textInfo.characterCount;
             _state["GetTime"] = () => Time.time;
@@ -63,8 +67,14 @@ public class LuaNameEffect : BaseNameEffect
     {
         if (!_initialized) return;
 
-        _state["Colors"] = colors;
-        _state["Vertices"] = vertices;
+        if (_lastFrame != Time.frameCount || !ReferenceEquals(_lastColors, colors) || !ReferenceEquals(_lastVertices, vertices))
+        {
+            _lastFrame = Time.frameCount;
+            _lastColors = colors;
+            _lastVertices = vertices;
+            _state["Colors"] = colors;
+            _state["Vertices"] = vertices;
+        }
 
         try
         {

@@ -8,6 +8,8 @@ public abstract class BaseNameEffect : MonoBehaviour
     protected TMP_Text NameTag;
     protected VRRig Rig;
 
+    public string EffectId;
+
     protected internal abstract bool ModifyVertices { get; }
     protected internal abstract bool ModifyColors { get; }
 

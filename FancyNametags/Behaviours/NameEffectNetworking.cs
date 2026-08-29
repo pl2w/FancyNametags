@@ -28,8 +28,8 @@ public static class NameEffectNetworking
     {
         var props = new Hashtable
         {
-            [VertexProp] = NameEffectRegistry.GetId(controller.VertexEffect?.GetType()) ?? string.Empty,
-            [ColorProp] = NameEffectRegistry.GetId(controller.ColorEffect?.GetType()) ?? string.Empty
+            [VertexProp] = controller.VertexEffect?.EffectId ?? string.Empty,
+            [ColorProp] = controller.ColorEffect?.EffectId ?? string.Empty
         };
         PhotonNetwork.LocalPlayer.SetCustomProperties(props);
     }
@@ -51,7 +51,12 @@ public static class NameEffectNetworking
         if (!string.IsNullOrEmpty(vertexId) && NameEffectRegistry.TryGetById(vertexId, out var vEntry))
         {
             vertexEffect = controller.gameObject.AddComponent(vEntry.EffectComponentType) as BaseNameEffect;
+            vertexEffect.EffectId = vEntry.Id;
             vertexData = vEntry.OptionalData;
+        }
+        else if (!string.IsNullOrEmpty(vertexId))
+        {
+            Plugin.Log.LogWarning($"Unknown vertex effect id: {vertexId}");
         }
 
         if (!string.IsNullOrEmpty(colorId))
@@ -64,7 +69,12 @@ public static class NameEffectNetworking
             else if (NameEffectRegistry.TryGetById(colorId, out var cEntry))
             {
                 colorEffect = controller.gameObject.AddComponent(cEntry.EffectComponentType) as BaseNameEffect;
+                colorEffect.EffectId = cEntry.Id;
                 colorData = cEntry.OptionalData;
+            }
+            else
+            {
+                Plugin.Log.LogWarning($"Unknown color effect id: {colorId}");
             }
         }
 
@@ -76,6 +86,8 @@ public static class NameEffectNetworking
     {
         public void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
         {
+            if (targetPlayer == null || targetPlayer.IsLocal) return;
+
             if (!changedProps.ContainsKey(VertexProp) && !changedProps.ContainsKey(ColorProp))
                 return;
 
