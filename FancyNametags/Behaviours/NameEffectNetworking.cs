@@ -77,6 +77,24 @@ public static class NameEffectNetworking
         if (colorEffect != null) controller.SetColorEffect(colorEffect, colorData);
     }
 
+    public static void ApplyOverride(NameEffectController controller, string effectId)
+    {
+        if (controller == null) return;
+
+        controller.ClearAllEffects();
+
+        if (string.IsNullOrEmpty(effectId) || !NameEffectRegistry.TryGetById(effectId, out var entry)) return;
+
+        var effect = controller.gameObject.AddComponent(entry.EffectComponentType) as BaseNameEffect;
+        if (effect == null) return;
+
+        effect.EffectId = entry.Id;
+        object data = entry.OptionalData;
+
+        if (effect.ModifyVertices) controller.SetVertexEffect(effect, data);
+        if (effect.ModifyColors) controller.SetColorEffect(effect, data);
+    }
+
     private class PropertyListener : IInRoomCallbacks
     {
         public void OnPlayerPropertiesUpdate(Player targetPlayer, Hashtable changedProps)
@@ -90,7 +108,12 @@ public static class NameEffectNetworking
             if (netPlayer == null || netPlayer.IsNull) return;
 
             if (NameEffectControllerRegistry.TryGet(netPlayer, out var controller))
-                ApplyFromProperties(targetPlayer, controller);
+            {
+                if (NameEffectControllerRegistry.IsOverrideActive)
+                    ApplyOverride(controller, NameEffectControllerRegistry.LocalOverrideId);
+                else
+                    ApplyFromProperties(targetPlayer, controller);
+            }
         }
 
         public void OnPlayerEnteredRoom(Player newPlayer) { }

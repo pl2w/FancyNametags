@@ -18,6 +18,8 @@ public static class VRRigOnEnablePatch
         if (__instance.isLocal)
         {
             NameEffectControllerRegistry.LocalController = controller;
+            if (NameEffectControllerRegistry.IsOverrideActive)
+                NameEffectNetworking.ApplyOverride(controller, NameEffectControllerRegistry.LocalOverrideId);
             return;
         }
 
@@ -25,7 +27,12 @@ public static class VRRigOnEnablePatch
 
         var photonPlayer = __instance.Creator?.GetPlayerRef();
         if (photonPlayer != null)
-            NameEffectNetworking.ApplyFromProperties(photonPlayer, controller);
+        {
+            if (NameEffectControllerRegistry.IsOverrideActive)
+                NameEffectNetworking.ApplyOverride(controller, NameEffectControllerRegistry.LocalOverrideId);
+            else
+                NameEffectNetworking.ApplyFromProperties(photonPlayer, controller);
+        }
     }
 }
 

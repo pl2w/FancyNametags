@@ -30,7 +30,7 @@ public class SelectView : ComputerView
         _header = new StringBuilder()
             .BeginCenter()
             .MakeBar('=', ScreenWidth, 0)
-            .AppendLine("\nFancy Nametags <size=60%>by pl2w</size>")
+            .AppendLine("\nFancy Nametags <size=60%>by pl2w & crafterbot</size>")
             .MakeBar('=', ScreenWidth, 0)
             .EndAlign()
             .AppendLines(1)
@@ -77,6 +77,12 @@ public class SelectView : ComputerView
             .AppendLine(ActiveError)
             .EndAlign();
 
+        if (NameEffectControllerRegistry.IsOverrideActive)
+            stringBuilder
+                .BeginColor(Color.cyan)
+                .AppendLine($"Forced: {NameEffectControllerRegistry.LocalOverrideName}")
+                .EndAlign();
+
         var controller = NameEffectControllerRegistry.LocalController;
         _pageHandler.EnumerateElements((entry, relativeIndex) =>
         {
@@ -114,6 +120,13 @@ public class SelectView : ComputerView
             return;
         }
 
+        if (key == EKeyboardButton.Option2)
+        {
+            ToggleLocalOverride();
+            UpdateViewScreen();
+            return;
+        }
+
         int pageBefore = _pageHandler.CurrentPage;
         bool pageChanged = _pageHandler.HandleButtonPress(key);
         if (pageChanged)
@@ -127,6 +140,18 @@ public class SelectView : ComputerView
         {
             UpdateViewScreen();
         }
+    }
+
+    private void ToggleLocalOverride()
+    {
+        if (NameEffectControllerRegistry.IsOverrideActive)
+        {
+            NameEffectControllerRegistry.SetLocalOverride(null);
+            return;
+        }
+
+        var entry = NameEffectRegistry.Entries[_selectionHandler.CurrentSelectionIndex];
+        NameEffectControllerRegistry.SetLocalOverride(entry.Id);
     }
 
     private void SetEffect(int index)
