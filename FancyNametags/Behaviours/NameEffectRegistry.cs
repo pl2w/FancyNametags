@@ -47,7 +47,11 @@ public static class NameEffectRegistry
         Register("Rainbow", typeof(TextRainbow));
 
         // lua
-        foreach (string file in Directory.GetFiles(BepInEx.Paths.PluginPath, "*.lua", SearchOption.AllDirectories))
+        string dllDir = Path.GetDirectoryName(typeof(NameEffectRegistry).Assembly.Location);
+        string luaDir = Path.Combine(dllDir, "LuaEffects");
+        Directory.CreateDirectory(luaDir);
+
+        foreach (string file in Directory.GetFiles(luaDir, "*.lua", SearchOption.AllDirectories))
         {
             try
             {
