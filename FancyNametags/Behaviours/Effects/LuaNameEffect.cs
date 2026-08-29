@@ -1,9 +1,11 @@
 using System;
-using NLua;
 using TMPro;
 using UnityEngine;
 
 namespace FancyNametags.Effects;
+
+#if !DISABLE_LUA
+using NLua;
 
 public class LuaNameEffect : BaseNameEffect
 {
@@ -108,3 +110,4 @@ public class LuaNameEffect : BaseNameEffect
         return lua;
     }
 }
+#endif

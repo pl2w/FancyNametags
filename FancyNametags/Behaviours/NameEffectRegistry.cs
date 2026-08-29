@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using FancyNametags.Effects;
+#if !DISABLE_LUA
 using NLua.Exceptions;
+#endif
 
 namespace FancyNametags.Behaviours;
 
@@ -46,6 +48,7 @@ public static class NameEffectRegistry
         Register("Pulse", typeof(TextPulse));
         Register("Rainbow", typeof(TextRainbow));
 
+#if !DISABLE_LUA
         // lua
         string dllDir = Path.GetDirectoryName(typeof(NameEffectRegistry).Assembly.Location);
         string luaDir = Path.Combine(dllDir, "LuaEffects");
@@ -72,5 +75,6 @@ public static class NameEffectRegistry
                 Plugin.Log.LogWarning($"Skipping {Path.GetFileName(file)} because of {ex}. Likely not a FancyNameEffect");
             }
         }
+#endif
     }
 }
