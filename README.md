@@ -32,7 +32,7 @@ Effects come in two flavors, and you can have one of each active at the same tim
 - **Vertex effects** – move or distort the characters of your name (e.g. *Bobber*).
 - **Color effects** – change the color of your name (e.g. *Rainbow*, *Color Wave*).
 
-Selecting an effect that occupies the same slot as your current one will replace it. Your last selected effects are saved to the BepInEx config and re-applied automatically the next time you launch the game. Whatever effects you have active are broadcast to other players in the room, so they'll see your nametag animate the same way you do.
+Selecting an effect that occupies the same slot as your current one will replace it. Your last selected effects are saved to the BepInEx config and re-applied automatically the next time you launch the game. Effects are networked to others who have the mod and effect installed.
 
 ### Built-in effects
 - Color Wave
@@ -42,7 +42,7 @@ Selecting an effect that occupies the same slot as your current one will replace
 - Rainbow
 
 ### Lua effects
-FancyNametags also loads any `.lua` file placed in the `LuaEffects` folder next to the plugin DLL (`BepInEx/plugins/FancyNametags/LuaEffects`), so you can add or write your own nametag effects without recompiling the mod. Each file is sandboxed and re-registered on startup.
+FancyNametags also loads any `.lua` file placed in the `LuaEffects` folder next to the plugin DLL (`BepInEx/plugins/FancyNametags/LuaEffects`).
 
 A minimal effect looks like this:
 
