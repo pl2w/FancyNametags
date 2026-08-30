@@ -192,15 +192,11 @@ public class SelectView : ComputerView
         if (clearVertex) controller.ClearVertexEffect();
         if (clearColor) controller.ClearColorEffect();
 
-        if (effect.ModifyVertices && effect.ModifyColors)
-        {
-            controller.SetColorEffect(effect, effectData);
-            controller.SetVertexEffect(effect, effectData);
-        }
-        else if (effect.ModifyVertices) controller.SetVertexEffect(effect, effectData);
-        else if (effect.ModifyColors) controller.SetColorEffect(effect, effectData);
+        if (effect.ModifyVertices) controller.SetVertexEffect(effect, effectData);
+        if (effect.ModifyColors) controller.SetColorEffect(effect, effectData);
 
         NameEffectNetworking.PublishLocalEffects(controller);
+        Configuration.ActiveEffectId.Value = entry.Id;
     }
 
     private static bool IsEffectActive(NameEffectController controller, string effectId)
@@ -218,6 +214,8 @@ public class SelectView : ComputerView
 
         if (vertexMatches) controller.ClearVertexEffect();
         if (colorMatches && controller.ColorEffect != controller.VertexEffect) controller.ClearColorEffect();
+
+        Configuration.ActiveEffectId.Value = string.Empty;
     }
 }
 

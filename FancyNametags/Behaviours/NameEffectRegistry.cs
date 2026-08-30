@@ -22,13 +22,13 @@ public static class NameEffectRegistry
 
         if (id is null)
             id = data is string luaFile
-                ? $"lua:{Path.GetRelativePath(Path.GetDirectoryName(typeof(NameEffectRegistry).Assembly.Location), luaFile)}"
+                ? $"lua:{Path.GetRelativePath(Path.GetDirectoryName(typeof(NameEffectRegistry).Assembly.Location), luaFile).Replace("\\", "/")}"
                 : effectComponentType.FullName;
 
         if (_entries.Exists(e => e.Id == id))
             return;
 
-        _entries.Add(new EffectEntry(displayName, effectComponentType, data, id));
+        _entries.Add(new EffectEntry(displayName, effectComponentType, id, data));
     }
 
     public static bool TryGetById(string id, out EffectEntry entry)

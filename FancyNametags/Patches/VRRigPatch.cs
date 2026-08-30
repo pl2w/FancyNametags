@@ -1,3 +1,4 @@
+using System.Linq;
 using FancyNametags.Behaviours;
 using HarmonyLib;
 
@@ -20,6 +21,18 @@ public static class VRRigOnEnablePatch
             NameEffectControllerRegistry.LocalController = controller;
             if (NameEffectControllerRegistry.IsOverrideActive)
                 NameEffectNetworking.ApplyOverride(controller, NameEffectControllerRegistry.LocalOverrideId);
+
+            // auto set effect
+            if (controller.VertexEffect is null && controller.ColorEffect is null && NameEffectRegistry.Entries.FirstOrDefault(entry => entry.Id == Configuration.ActiveEffectId.Value) is EffectEntry entry)
+            {
+                Plugin.Log.LogInfo("Applying saved name effect");
+                var effect = controller.gameObject.AddComponent(entry.EffectComponentType) as Effects.BaseNameEffect;
+                effect.EffectId = entry.Id;
+                if (effect.ModifyVertices) controller.SetVertexEffect(effect, entry.OptionalData);
+                if (effect.ModifyColors) controller.SetColorEffect(effect, entry.OptionalData);
+                NameEffectNetworking.PublishLocalEffects(controller);
+            }
+
             return;
         }
 
