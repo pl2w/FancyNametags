@@ -23,7 +23,6 @@ public class Plugin : BaseUnityPlugin
         Configuration.Initialize(Config);
         NameEffectRegistry.RegisterAllEffects();
         GorillaTagger.OnPlayerSpawned(NameEffectNetworking.Initialize);
-        
     }
 }
 

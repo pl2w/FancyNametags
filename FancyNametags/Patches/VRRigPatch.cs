@@ -21,14 +21,14 @@ public static class VRRigOnEnablePatch
             NameEffectControllerRegistry.LocalController = controller;
             if (NameEffectControllerRegistry.IsOverrideActive)
                 NameEffectNetworking.ApplyOverride(controller, NameEffectControllerRegistry.LocalOverrideId);
-        
+
             // auto set effects
             if (controller.VertexEffect is null && controller.ColorEffect is null)
             {
                 string vertexId = Configuration.ActiveVertexEffectId.Value;
                 string colorId = Configuration.ActiveColorEffectId.Value;
                 bool sameEntry = !string.IsNullOrEmpty(vertexId) && vertexId == colorId;
-        
+
                 if (sameEntry && NameEffectRegistry.Entries.FirstOrDefault(e => e.Id == vertexId) is EffectEntry combined)
                 {
                     Plugin.Log.LogInfo("Applying saved name effect (combined)");
@@ -46,7 +46,7 @@ public static class VRRigOnEnablePatch
                         vEffect.EffectId = vEntry.Id;
                         controller.SetVertexEffect(vEffect, vEntry.OptionalData);
                     }
-        
+
                     if (!string.IsNullOrEmpty(colorId) && NameEffectRegistry.Entries.FirstOrDefault(e => e.Id == colorId) is EffectEntry cEntry)
                     {
                         Plugin.Log.LogInfo("Applying saved color effect");
@@ -55,11 +55,11 @@ public static class VRRigOnEnablePatch
                         controller.SetColorEffect(cEffect, cEntry.OptionalData);
                     }
                 }
-        
+
                 if (controller.VertexEffect != null || controller.ColorEffect != null)
                     NameEffectNetworking.PublishLocalEffects(controller);
             }
-        
+
             return;
         }
 
