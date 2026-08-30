@@ -14,10 +14,14 @@ public class LuaNameEffect : BaseNameEffect
 
     private Lua _state;
     private LuaFunction _luaAnimateCharacter;
+    private LuaFunction _luaShouldAnimateThisFrame;
     private bool _initialized;
     private int _lastFrame = -1;
     private Vector3[] _lastVertices;
     private Color32[] _lastColors;
+
+    private int _lastShouldAnimateFrame = -1;
+    private bool _lastShouldAnimateResult = true;
 
     public override void Initialize(TMP_Text nametag, VRRig rig, object data = null)
     {
@@ -49,6 +53,8 @@ public class LuaNameEffect : BaseNameEffect
                 Views.SelectView.Instance.ActiveError = $"Lua script '{luaFile}' does not define AnimateCharacter";
                 return;
             }
+            
+            _luaShouldAnimateThisFrame = _state["ShouldAnimateThisFrame"] as LuaFunction;
 
             _initialized = true;
         }
@@ -57,6 +63,41 @@ public class LuaNameEffect : BaseNameEffect
             Plugin.Log.LogError($"Failed to load Lua nametag effect '{luaFile}': {ex}");
             Views.SelectView.Instance.ActiveError = "Failed to load Lua effect";
             _initialized = false;
+        }
+    }
+
+    protected internal override bool ShouldAnimateThisFrame()
+    {
+        if (!_initialized) return false;
+        if (_luaShouldAnimateThisFrame == null) return true;
+        
+        if (_lastShouldAnimateFrame == Time.frameCount)
+        {
+            return _lastShouldAnimateResult;
+        }
+
+        _lastShouldAnimateFrame = Time.frameCount;
+
+        try
+        {
+            object[] result = _luaShouldAnimateThisFrame.Call();
+            bool shouldAnimate = result is { Length: > 0 } && result[0] switch
+            {
+                bool b => b,
+                double d => d != 0,
+                null => false,
+                _ => true
+            };
+
+            _lastShouldAnimateResult = shouldAnimate;
+            return shouldAnimate;
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogError($"Lua ShouldAnimateThisFrame threw: {ex}");
+            _initialized = false;
+            _lastShouldAnimateResult = false;
+            return false;
         }
     }
 
