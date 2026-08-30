@@ -21,18 +21,45 @@ public static class VRRigOnEnablePatch
             NameEffectControllerRegistry.LocalController = controller;
             if (NameEffectControllerRegistry.IsOverrideActive)
                 NameEffectNetworking.ApplyOverride(controller, NameEffectControllerRegistry.LocalOverrideId);
-
-            // auto set effect
-            if (controller.VertexEffect is null && controller.ColorEffect is null && NameEffectRegistry.Entries.FirstOrDefault(entry => entry.Id == Configuration.ActiveEffectId.Value) is EffectEntry entry)
+        
+            // auto set effects
+            if (controller.VertexEffect is null && controller.ColorEffect is null)
             {
-                Plugin.Log.LogInfo("Applying saved name effect");
-                var effect = controller.gameObject.AddComponent(entry.EffectComponentType) as Effects.BaseNameEffect;
-                effect.EffectId = entry.Id;
-                if (effect.ModifyVertices) controller.SetVertexEffect(effect, entry.OptionalData);
-                if (effect.ModifyColors) controller.SetColorEffect(effect, entry.OptionalData);
-                NameEffectNetworking.PublishLocalEffects(controller);
+                string vertexId = Configuration.ActiveVertexEffectId.Value;
+                string colorId = Configuration.ActiveColorEffectId.Value;
+                bool sameEntry = !string.IsNullOrEmpty(vertexId) && vertexId == colorId;
+        
+                if (sameEntry && NameEffectRegistry.Entries.FirstOrDefault(e => e.Id == vertexId) is EffectEntry combined)
+                {
+                    Plugin.Log.LogInfo("Applying saved name effect (combined)");
+                    var effect = controller.gameObject.AddComponent(combined.EffectComponentType) as Effects.BaseNameEffect;
+                    effect.EffectId = combined.Id;
+                    if (effect.ModifyVertices) controller.SetVertexEffect(effect, combined.OptionalData);
+                    if (effect.ModifyColors) controller.SetColorEffect(effect, combined.OptionalData);
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(vertexId) && NameEffectRegistry.Entries.FirstOrDefault(e => e.Id == vertexId) is EffectEntry vEntry)
+                    {
+                        Plugin.Log.LogInfo("Applying saved vertex effect");
+                        var vEffect = controller.gameObject.AddComponent(vEntry.EffectComponentType) as Effects.BaseNameEffect;
+                        vEffect.EffectId = vEntry.Id;
+                        controller.SetVertexEffect(vEffect, vEntry.OptionalData);
+                    }
+        
+                    if (!string.IsNullOrEmpty(colorId) && NameEffectRegistry.Entries.FirstOrDefault(e => e.Id == colorId) is EffectEntry cEntry)
+                    {
+                        Plugin.Log.LogInfo("Applying saved color effect");
+                        var cEffect = controller.gameObject.AddComponent(cEntry.EffectComponentType) as Effects.BaseNameEffect;
+                        cEffect.EffectId = cEntry.Id;
+                        controller.SetColorEffect(cEffect, cEntry.OptionalData);
+                    }
+                }
+        
+                if (controller.VertexEffect != null || controller.ColorEffect != null)
+                    NameEffectNetworking.PublishLocalEffects(controller);
             }
-
+        
             return;
         }
 

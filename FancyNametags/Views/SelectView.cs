@@ -158,47 +158,55 @@ public class SelectView : ComputerView
     {
         var controller = NameEffectControllerRegistry.LocalController;
         if (controller == null) return;
-
+    
         var entry = NameEffectRegistry.Entries[index];
         var effectType = entry.EffectComponentType;
-
+    
         if (IsEffectActive(controller, entry.Id))
         {
             DisableEffect(controller, entry.Id);
             NameEffectNetworking.PublishLocalEffects(controller);
             return;
         }
-
+    
         var effect = controller.gameObject.AddComponent(effectType) as BaseNameEffect;
         if (effect == null)
         {
-            Views.SelectView.Instance.ActiveError = $"Failed to create effect '{entry.EffectName}'";
+            Instance.ActiveError = $"Failed to create effect '{entry.EffectName}'";
             return;
         }
         effect.EffectId = entry.Id;
         object effectData = entry.OptionalData;
-
+    
         var oldVertex = controller.VertexEffect;
         var oldColor = controller.ColorEffect;
-
+    
         bool clearVertex = oldVertex &&
             ((effect.ModifyVertices && oldVertex.ModifyVertices) ||
              (effect.ModifyColors && oldVertex.ModifyColors));
-
+    
         bool clearColor = oldColor &&
             ((effect.ModifyVertices && oldColor.ModifyVertices) ||
              (effect.ModifyColors && oldColor.ModifyColors));
-
+    
         if (clearVertex) controller.ClearVertexEffect();
         if (clearColor) controller.ClearColorEffect();
-
-        if (effect.ModifyVertices) controller.SetVertexEffect(effect, effectData);
-        if (effect.ModifyColors) controller.SetColorEffect(effect, effectData);
-
+    
+        if (effect.ModifyVertices)
+        {
+            controller.SetVertexEffect(effect, effectData);
+            Configuration.ActiveVertexEffectId.Value = entry.Id;
+        }
+    
+        if (effect.ModifyColors)
+        {
+            controller.SetColorEffect(effect, effectData);
+            Configuration.ActiveColorEffectId.Value = entry.Id;
+        }
+    
         NameEffectNetworking.PublishLocalEffects(controller);
-        Configuration.ActiveEffectId.Value = entry.Id;
     }
-
+    
     private static bool IsEffectActive(NameEffectController controller, string effectId)
     {
         if (controller == null) return false;
@@ -206,16 +214,23 @@ public class SelectView : ComputerView
         if (controller.ColorEffect != null && controller.ColorEffect.EffectId == effectId) return true;
         return false;
     }
-
+    
     private static void DisableEffect(NameEffectController controller, string effectId)
     {
         bool vertexMatches = controller.VertexEffect != null && controller.VertexEffect.EffectId == effectId;
         bool colorMatches = controller.ColorEffect != null && controller.ColorEffect.EffectId == effectId;
-
-        if (vertexMatches) controller.ClearVertexEffect();
-        if (colorMatches && controller.ColorEffect != controller.VertexEffect) controller.ClearColorEffect();
-
-        Configuration.ActiveEffectId.Value = string.Empty;
+    
+        if (vertexMatches)
+        {
+            controller.ClearVertexEffect();
+            Configuration.ActiveVertexEffectId.Value = string.Empty;
+        }
+    
+        if (colorMatches && controller.ColorEffect != controller.VertexEffect)
+        {
+            controller.ClearColorEffect();
+            Configuration.ActiveColorEffectId.Value = string.Empty;
+        }
     }
 }
 
