@@ -49,6 +49,8 @@ jobs:
       - name: Restore Dependencies
         run: dotnet restore
       - name: Build Project
+        env:
+          CI: true
         run: dotnet build -c Release --no-restore
       - name: Upload build artifact
         uses: actions/upload-artifact@v7
@@ -67,6 +69,21 @@ jobs:
             exit 1
           fi
 
+      - name: Pack plugin
+        if: github.event_name == 'workflow_dispatch' && inputs.release == true
+        run: |
+          temp="$GITHUB_WORKSPACE/temp/FancyNametags"
+          bin="FancyNametags/bin/Release/netstandard2.1"
+          mkdir -p "$temp"
+          mkdir -p "$temp/LuaEffects"
+          cp "$bin/FancyNametags.dll" "$temp/"
+          cp "$bin/NLua.dll" "$bin/KeraLua.dll" "$temp/"
+          cp LuaEffects/*.lua "$temp/LuaEffects/"
+          lua_native="$(find "${NUGET_PACKAGES:-$HOME/.nuget/packages}/keralua" -path '*/runtimes/win-x64/native/lua54.dll' | head -n1)" # kill me
+          cp "$lua_native" "$temp/lua54.dll"
+          cd "$temp/.."
+          zip -r "$GITHUB_WORKSPACE/FancyNametags.zip" FancyNametags
+
       - name: Create Release
         if: github.event_name == 'workflow_dispatch' && inputs.release == true
         uses: softprops/action-gh-release@v2
@@ -74,5 +91,5 @@ jobs:
           tag_name: ${{ inputs.version }}
           name: ${{ inputs.version }}
           prerelease: ${{ inputs.prerelease }}
-          files: FancyNametags/bin/Release/netstandard2.1/FancyNametags.dll
+          files: FancyNametags.zip
           generate_release_notes: true
