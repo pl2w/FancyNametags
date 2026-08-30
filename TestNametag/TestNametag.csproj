@@ -138,6 +138,9 @@
     <Import Project="Directory.Build.local.props" Condition="Exists('Directory.Build.local.props')"/>
 
     <Target Name="PostBuild_CopyToBepInEx" AfterTargets="Build" Condition="Exists('$(GorillaTagDir)')">
+        <PropertyGroup>
+            <SolutionName Condition="'$(SolutionName)' == '' or '$(SolutionName)' == '*Undefined*'">$(ProjectName)</SolutionName>
+        </PropertyGroup>
         <MakeDir Directories="$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)"/>
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)" SkipUnchangedFiles="true"/>
     </Target>

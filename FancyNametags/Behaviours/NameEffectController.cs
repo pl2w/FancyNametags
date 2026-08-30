@@ -1,3 +1,4 @@
+using System;
 using FancyNametags.Effects;
 using TMPro;
 using UnityEngine;
@@ -14,13 +15,13 @@ public class NameEffectController : MonoBehaviour
 
     public void Initialize(TMP_Text nameTag, VRRig rig)
     {
-        ClearAllEffects();
-
         _nameTag = nameTag;
         _rig = rig;
+
+        ClearAllEffects();
     }
 
-    public void SetVertexEffect(BaseNameEffect effect)
+    public void SetVertexEffect(BaseNameEffect effect, object effectData)
     {
         if (effect != null && !effect.ModifyVertices)
         {
@@ -34,10 +35,10 @@ public class NameEffectController : MonoBehaviour
             Destroy(VertexEffect);
 
         VertexEffect = effect;
-        effect?.Initialize(_nameTag, _rig);
+        effect?.Initialize(_nameTag, _rig, effectData);
     }
 
-    public void SetColorEffect(BaseNameEffect effect)
+    public void SetColorEffect(BaseNameEffect effect, object effectData)
     {
         if (effect != null && !effect.ModifyColors)
         {
@@ -51,7 +52,7 @@ public class NameEffectController : MonoBehaviour
             Destroy(ColorEffect);
 
         ColorEffect = effect;
-        effect?.Initialize(_nameTag, _rig);
+        effect?.Initialize(_nameTag, _rig, effectData);
     }
 
     public void ClearVertexEffect()
@@ -114,9 +115,6 @@ public class NameEffectController : MonoBehaviour
 
             if (runColor && !sameEffect)
                 ColorEffect.AnimateCharacter(i, vertIdx, charInfo, verts, colors);
-
-            if (runColor && !sameEffect)
-                ColorEffect.AnimateCharacter(i, vertIdx, charInfo, verts, colors);
         }
 
         var flags = TMP_VertexDataUpdateFlags.None;
@@ -127,9 +125,17 @@ public class NameEffectController : MonoBehaviour
 
     private void ResetMesh()
     {
-        if (!_nameTag) return;
-        _nameTag.ForceMeshUpdate();
-        _nameTag.UpdateVertexData(TMP_VertexDataUpdateFlags.Vertices | TMP_VertexDataUpdateFlags.Colors32);
+        if (!_nameTag || !_nameTag.isActiveAndEnabled) return;
+
+        try
+        {
+            _nameTag.ForceMeshUpdate();
+            _nameTag.UpdateVertexData(TMP_VertexDataUpdateFlags.Vertices | TMP_VertexDataUpdateFlags.Colors32);
+        }
+        catch (Exception ex)
+        {
+            Plugin.Log.LogDebug($"reset mesh skipped, nametag not ready yet: {ex.Message}");
+        }
     }
 
     private void OnDisable() => ClearAllEffects();

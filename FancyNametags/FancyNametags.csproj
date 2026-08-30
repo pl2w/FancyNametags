@@ -4,18 +4,22 @@
         <TargetFramework>netstandard2.1</TargetFramework>
         <LangVersion>latest</LangVersion>
         <RootNamespace>FancyNametags</RootNamespace>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
         <RestoreAdditionalProjectSources>
             https://api.nuget.org/v3/index.json;
             https://nuget.bepinex.dev/v3/index.json
         </RestoreAdditionalProjectSources>
+        <EnableLua Condition="'$(EnableLua)' == ''">true</EnableLua>
+        <DefineConstants Condition="'$(EnableLua)' == 'false'">$(DefineConstants);DISABLE_LUA</DefineConstants>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all"/>
+        <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+        <PackageReference Include="NLua" Version="1.7.9" Condition="'$(EnableLua)' == 'true'" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(CI)'=='TRUE'">
-        <PackageReference Include="gorillatag" Version="*"/>
+        <PackageReference Include="gorillatag" Version="*" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(CI)'!='TRUE'">
@@ -139,10 +143,22 @@
         </Reference>
     </ItemGroup>
 
-    <Import Project="Directory.Build.local.props" Condition="Exists('Directory.Build.local.props')"/>
+    <Import Project="Directory.Build.local.props" Condition="Exists('Directory.Build.local.props')" />
 
     <Target Name="PostBuild_CopyToBepInEx" AfterTargets="Build" Condition="Exists('$(GorillaTagDir)')">
-        <MakeDir Directories="$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)"/>
-        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)" SkipUnchangedFiles="true"/>
+        <PropertyGroup>
+            <SolutionName Condition="'$(SolutionName)' == '' or '$(SolutionName)' == '*Undefined*'">$(ProjectName)</SolutionName>
+            <PluginsDir>$(GorillaTagDir)/BepInEx/plugins/$(SolutionName)</PluginsDir>
+        </PropertyGroup>
+        <MakeDir Directories="$(PluginsDir)" />
+        <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="$(TargetDir)$(ProjectName).pdb" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" />
+        <Copy SourceFiles="$(TargetDir)NLua.dll" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" Condition="'$(EnableLua)' == 'true'" />
+        <Copy SourceFiles="$(TargetDir)KeraLua.dll" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" Condition="'$(EnableLua)' == 'true'" />
+        <Copy SourceFiles="$(NuGetPackageRoot)keralua/1.4.9/runtimes/win-x64/native/lua54.dll" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" Condition="'$(EnableLua)' == 'true'" />
+        <ItemGroup Condition="'$(EnableLua)' == 'true'">
+            <LuaEffectFiles Include="$(MSBuildThisFileDirectory)../LuaEffects/*.lua" />
+        </ItemGroup>
+        <Copy SourceFiles="@(LuaEffectFiles)" DestinationFolder="$(PluginsDir)/LuaEffects" SkipUnchangedFiles="true" />
     </Target>
 </Project>

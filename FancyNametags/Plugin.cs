@@ -19,12 +19,10 @@ public class Plugin : BaseUnityPlugin
 
         _harmony = new Harmony(PluginInfo.Guid);
         _harmony.PatchAll(Assembly.GetExecutingAssembly());
-        
-        GorillaTagger.OnPlayerSpawned(delegate
-        {
-            NameEffectRegistry.RegisterDefaults();
-            NameEffectNetworking.Initialize();
-        });
+
+        Configuration.Initialize(Config);
+        NameEffectRegistry.RegisterAllEffects();
+        GorillaTagger.OnPlayerSpawned(NameEffectNetworking.Initialize);
     }
 }
 
