@@ -88,13 +88,16 @@ public class SelectView : ComputerView
         {
             int index = _pageHandler.GetAbsoluteIndex(_pageHandler.CurrentPage, relativeIndex);
             bool isLua = entry.EffectComponentType == typeof(LuaNameEffect);
+            bool hasConfig = NameEffectRegistry.GetConfigEntries(entry).Any();
             string color = IsEffectActive(controller, entry.Id) ? "green" : "white";
             string luaTag = isLua ? "<color=#00FFFF>[LUA] </color>" : "";
-            string text = _selectionHandler.GetIndicatedText(index, $"<color={color}>{luaTag}{entry.EffectName}</color>");
+            string configTag = hasConfig ? " <color=grey>*</color>" : "";
+            string text = _selectionHandler.GetIndicatedText(index, $"<color={color}>{luaTag}{entry.EffectName}</color>{configTag}");
             stringBuilder.AppendLine(text);
         });
 
         _pageHandler.AppendFooter(stringBuilder);
+
         return stringBuilder.ToString();
     }
 
@@ -124,6 +127,16 @@ public class SelectView : ComputerView
         {
             ToggleLocalOverride();
             UpdateViewScreen();
+            return;
+        }
+
+        if (key == EKeyboardButton.Option3)
+        {
+            var entry = NameEffectRegistry.Entries[_selectionHandler.CurrentSelectionIndex];
+            if (NameEffectRegistry.GetConfigEntries(entry).Any())
+            {
+                ShowView<EffectConfigView>(entry);
+            }
             return;
         }
 

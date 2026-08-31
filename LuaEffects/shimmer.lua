@@ -1,5 +1,5 @@
-local shimmerSpeed = 1.5
-local shimmerWidth = 2.5
+shimmerSpeed = GetConfig("shimmerSpeed", 1.5, "Speed of the light band sweeping across text")
+shimmerWidth = GetConfig("shimmerWidth", 2.5, "Width of the shimmer highlight band in characters")
 
 EffectName = "Shimmer"
 

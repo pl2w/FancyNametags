@@ -5,9 +5,16 @@ namespace FancyNametags.Effects;
 
 public class TextRainbow : BaseNameEffect
 {
+    [EffectConfig("Speed of the rainbow color cycle")]
     public float speed = 0.3f;
+
+    [EffectConfig("Saturation of the colors (0 = grayscale, 1 = full color)")]
     public float saturation = 1f;
+
+    [EffectConfig("Brightness of the rainbow colors")]
     public float brightness = 1f;
+
+    [EffectConfig("Spread of the rainbow gradient across the characters")]
     public float hueSpread = 1f;
 
     protected internal override bool ModifyVertices => false;

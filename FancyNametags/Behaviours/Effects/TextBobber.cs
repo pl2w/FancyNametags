@@ -5,8 +5,13 @@ namespace FancyNametags.Effects;
 
 public class TextBobber : BaseNameEffect
 {
+    [EffectConfig("Speed of the bobbing animation")]
     public float speed = 3f;
+
+    [EffectConfig("How high characters bounce")]
     public float bounceHeight = 2f;
+
+    [EffectConfig("Phase offset applied per character")]
     public float waveFrequency = 0.4f;
 
     protected internal override bool ModifyVertices => true;

@@ -1,3 +1,5 @@
+glitchChance = GetConfig("glitchChance", 0.5, "Probability threshold for triggering a glitch color")
+
 EffectName = "Glitch Flicker"
 
 local function rand()
@@ -6,7 +8,7 @@ end
 
 function AnimateCharacter(charIndex, vertexIndex)
     local color
-    if rand() > 0.5 then
+    if rand() > glitchChance then
         local r = math.floor(rand() * 255)
         local g = math.floor(rand() * 255)
         local b = math.floor(rand() * 255)

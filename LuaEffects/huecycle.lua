@@ -1,6 +1,6 @@
-local speed = 0.4
-local saturation = 1
-local brightness = 1
+speed = GetConfig("speed", 0.4, "Speed of the hue transition cycle")
+saturation = GetConfig("saturation", 1, "Saturation of the colors")
+brightness = GetConfig("brightness", 1, "Brightness level of the colors")
 
 EffectName = "Hue Cycle"
 

@@ -1,10 +1,11 @@
-local trailLength = 2
+trailLength = GetConfig("trailLength", 2, "Length of the matrix trail, in characters")
+speed = GetConfig("speed", 4, "Speed of the falling matrix wave")
 
 EffectName = "Matrix Rain"
 
 function AnimateCharacter(charIndex, vertexIndex)
     local total = math.max(1, GetCharacterCount())
-    local wave = (GetTime() * 4 + charIndex) % (total + trailLength)
+    local wave = (GetTime() * speed + charIndex) % (total + trailLength)
     local pos = total - 1 - charIndex
     local dist = wave - pos
 
@@ -14,10 +15,8 @@ function AnimateCharacter(charIndex, vertexIndex)
     end
 
     local g = math.floor(255 * intensity)
-    local color = Color32(0, g, 0, 255)
-
-    Colors[vertexIndex + 0] = color
-    Colors[vertexIndex + 1] = color
-    Colors[vertexIndex + 2] = color
-    Colors[vertexIndex + 3] = color
+    Colors[vertexIndex + 0] = Color32(0, g, 0, 255)
+    Colors[vertexIndex + 1] = Color32(0, g, 0, 255)
+    Colors[vertexIndex + 2] = Color32(0, g, 0, 255)
+    Colors[vertexIndex + 3] = Color32(0, g, 0, 255)
 end

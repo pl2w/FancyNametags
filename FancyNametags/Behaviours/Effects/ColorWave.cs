@@ -5,7 +5,10 @@ namespace FancyNametags.Effects;
 
 public class ColorWave : BaseNameEffect
 {
+    [EffectConfig("Speed of the color wave movement")]
     public float speed = 0.5f;
+
+    [EffectConfig("Brightness intensity of the wave highlight")]
     public float highlightIntensity = 0.5f;
 
     protected internal override bool ModifyVertices => false;

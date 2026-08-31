@@ -5,8 +5,13 @@ namespace FancyNametags.Effects;
 
 public class TextPulse : BaseNameEffect
 {
+    [EffectConfig("Speed of the pulse animation")]
     public float speed = 4f;
+
+    [EffectConfig("Maximum scale increase/decrease of the pulse")]
     public float amount = 0.3f;
+
+    [EffectConfig("How tight the pulse wave is across the characters")]
     public float waveFrequency = 0.3f;
 
     protected internal override bool ModifyVertices => true;

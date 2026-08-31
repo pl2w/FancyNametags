@@ -5,9 +5,16 @@ namespace FancyNametags.Effects;
 
 public class TextGlitch : BaseNameEffect
 {
+    [EffectConfig("Probability of a glitch effect occurring")]
     public float glitchChance = 0.12f;
+
+    [EffectConfig("Amount of horizontal displacement")]
     public float horizontalOffset = 7f;
+
+    [EffectConfig("Amount of vertical displacement")]
     public float verticalOffset = 1.5f;
+
+    [EffectConfig("Time interval between glitch effects")]
     public float glitchInterval = 0.05f;
 
     private float _nextGlitchTime;

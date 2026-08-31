@@ -1,4 +1,4 @@
-local speed = 2.0
+speed = GetConfig("speed", 2.0, "Speed of the shifting RGB channels")
 
 EffectName = "RGB Channel"
 

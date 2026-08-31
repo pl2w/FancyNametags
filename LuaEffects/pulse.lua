@@ -1,6 +1,6 @@
-local base = 80
-local range = 175
-local speed = 3.0
+base = GetConfig("base", 80, "Minimum base alpha level")
+range = GetConfig("range", 175, "Alpha transparency variance range")
+speed = GetConfig("speed", 3.0, "Speed of the breathing pulse animation")
 
 EffectName = "Breathing Pulse"
 

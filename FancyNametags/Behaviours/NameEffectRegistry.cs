@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using BepInEx.Configuration;
 using FancyNametags.Effects;
 #if !DISABLE_LUA
 using MoonSharp.Interpreter;
@@ -40,16 +41,17 @@ public static class NameEffectRegistry
     public static void RegisterAllEffects()
     {
         if (_defaultsRegistered) return;
+        if (Configuration.Config == null)
+            throw new InvalidOperationException("RegisterAllEffects called before Configuration was initialized");
         _defaultsRegistered = true;
 
-        Register("Color Wave", typeof(ColorWave));
-        Register("Bobber", typeof(TextBobber));
-        Register("Glitch", typeof(TextGlitch));
-        Register("Pulse", typeof(TextPulse));
-        Register("Rainbow", typeof(TextRainbow));
+        RegisterWithConfig("Color Wave", typeof(ColorWave));
+        RegisterWithConfig("Bobber", typeof(TextBobber));
+        RegisterWithConfig("Glitch", typeof(TextGlitch));
+        RegisterWithConfig("Pulse", typeof(TextPulse));
+        RegisterWithConfig("Rainbow", typeof(TextRainbow));
 
 #if !DISABLE_LUA
-        // lua
         string dllDir = Path.GetDirectoryName(typeof(NameEffectRegistry).Assembly.Location);
         string luaDir = Path.Combine(dllDir, "LuaEffects");
         Directory.CreateDirectory(luaDir);
@@ -59,6 +61,7 @@ public static class NameEffectRegistry
             try
             {
                 var script = LuaNameEffect.SafeScript();
+                LuaNameEffect.RegisterConfigGlobal(script, file);
                 script.DoFile(file);
 
                 DynValue nameValue = script.Globals.Get("EffectName");
@@ -82,5 +85,22 @@ public static class NameEffectRegistry
             }
         }
 #endif
+    }
+
+    private static void RegisterWithConfig(string displayName, Type effectType)
+    {
+        BaseNameEffect.BindConfig(Configuration.Config, effectType);
+        Register(displayName, effectType);
+    }
+
+    public static IEnumerable<(string Key, ConfigEntryBase Entry)> GetConfigEntries(EffectEntry entry)
+    {
+        if (entry.EffectComponentType == typeof(LuaNameEffect) && entry.OptionalData is string luaFile)
+        {
+            string section = $"Lua.{Path.GetFileNameWithoutExtension(luaFile)}";
+            return LuaConfigBridge.GetEntriesForSection(section);
+        }
+
+        return BaseNameEffect.GetConfigEntries(entry.EffectComponentType);
     }
 }

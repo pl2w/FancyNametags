@@ -1,6 +1,6 @@
-local speed = 2.0
-local saturation = 1
-local brightness = 1
+speed = GetConfig("speed", 2.0, "Speed of the rainbow scroll animation")
+saturation = GetConfig("saturation", 1, "Saturation of the rainbow spectrum")
+brightness = GetConfig("brightness", 1, "Brightness of the rainbow spectrum")
 
 EffectName = "Scrolling Rainbow"
 

@@ -21,6 +21,7 @@ public class LuaNameEffect : BaseNameEffect
 
     private int _lastShouldAnimateFrame = -1;
     private bool _lastShouldAnimateResult = true;
+    private string _configSection;
 
     public override void Initialize(TMP_Text nametag, VRRig rig, object data = null)
     {
@@ -35,6 +36,8 @@ public class LuaNameEffect : BaseNameEffect
         try
         {
             _script = SafeScript();
+            _configSection = $"Lua.{System.IO.Path.GetFileNameWithoutExtension(luaFile)}";
+            RegisterConfigGlobal(_script, luaFile);
             _script.DoFile(luaFile);
 
             _script.Globals["Color32"] = (Func<double, double, double, double, DynValue>)
@@ -142,6 +145,20 @@ public class LuaNameEffect : BaseNameEffect
         }
     }
 
+    public static void RegisterConfigGlobal(Script script, string luaFile)
+    {
+        var sectionName = $"Lua.{System.IO.Path.GetFileNameWithoutExtension(luaFile)}";
+
+        script.Globals["GetConfig"] = (Func<string, DynValue, DynValue, DynValue>)
+            ((key, defaultVal, description) =>
+                LuaConfigBridge.GetOrBind(
+                    Configuration.Config,
+                    sectionName,
+                    key,
+                    defaultVal,
+                    description.Type == DataType.String ? description.String : null));
+    }
+
     private void OnDestroy()
     {
         _script = null;
@@ -157,5 +174,15 @@ public class LuaNameEffect : BaseNameEffect
             }
         };
         return script;
+    }
+    
+    protected internal override void ApplyConfig()
+    {
+        if (!_initialized) return;
+
+        foreach (var (key, entry) in LuaConfigBridge.GetEntriesForSection(_configSection))
+        {
+            _script.Globals[key] = LuaConfigBridge.ToDynValue(entry);
+        }
     }
 }
