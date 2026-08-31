@@ -58,7 +58,7 @@ jobs:
           name: FancyNametags
           path: |
             FancyNametags/bin/Release/netstandard2.1/FancyNametags.dll
-            FancyNametags/bin/Release/netstandard2.1/MoonSharp.dll
+            FancyNametags/bin/Release/netstandard2.1/MoonSharp.Interpreter.dll
           if-no-files-found: error
           retention-days: 7
 
@@ -78,7 +78,7 @@ jobs:
           mkdir -p "$temp"
           mkdir -p "$temp/LuaEffects"
           cp "$bin/FancyNametags.dll" "$temp/"
-          cp "$bin/MoonSharp.dll" "$temp/"
+          cp "$bin/MoonSharp.Interpreter.dll" "$temp/"
           cp LuaEffects/*.lua "$temp/LuaEffects/"
           cd "$temp/.."
           zip -r "$GITHUB_WORKSPACE/FancyNametags.zip" FancyNametags
