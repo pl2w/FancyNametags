@@ -94,9 +94,30 @@ public class EffectConfigView : ComputerView
 
             if (end < _configEntries.Count)
                 sb.BeginColor(Color.gray).AppendLine("v").EndAlign();
+
+            string description = GetSelectedDescription();
+            if (!string.IsNullOrEmpty(description))
+            {
+                sb.AppendLine()
+                  .MakeBar('-', ScreenWidth, 0)
+                  .AppendLines(1)
+                  .BeginColor(Color.gray)
+                  .Append(description)
+                  .EndAlign();
+            }
         }
 
         return sb.ToString();
+    }
+
+    private string GetSelectedDescription()
+    {
+        int index = _selectionHandler.CurrentSelectionIndex;
+        if (index < 0 || index >= _configEntries.Count)
+            return null;
+
+        var entry = _configEntries[index].Entry;
+        return entry?.Description?.Description;
     }
 
     public override void OnButtonPressed(EKeyboardButton key)
