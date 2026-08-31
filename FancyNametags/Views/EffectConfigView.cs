@@ -16,7 +16,7 @@ public class EffectConfigView : ComputerView
 {
     public static EffectConfigView Instance;
 
-    private const int VisibleEntries = 8;
+    private const int VisibleEntries = 6;
 
     private EffectEntry _entry;
     private List<(string Key, ConfigEntryBase Entry)> _configEntries = new();
