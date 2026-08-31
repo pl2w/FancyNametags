@@ -37,5 +37,5 @@ public static class PluginInfo
 {
     public const string Guid = "xyz.pl2w.fancynametags";
     public const string Name = "FancyNametags";
-    public const string Version = "1.0.0";
+    public const string Version = "1.1.0";
 }
