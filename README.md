@@ -1,22 +1,23 @@
 # Fancy Nametags
-
 > Makes your nametag fancy!
 
 ---
 
 ## Installation
+
 1. Ensure you have the latest version of BepInEx 5 installed.
 2. Make sure you have the latest version of Computer Interface installed.
 3. Download the latest version from the [Releases](https://github.com/pl2w/FancyNametags/releases/latest) page.
 4. Move the mod into your plugins folder.
 
 ---
-   
+
 ## Usage
 
 FancyNametags adds a **"Fancy Names"** entry to Computer Interface. Open it to browse and apply effects to your own nametag.
 
 **Controls**
+
 | Button | Action |
 | --- | --- |
 | `Up` / `Down` | Move the selection cursor |
@@ -42,6 +43,7 @@ Selecting an effect that occupies the same slot as your current one will replace
 - Rainbow
 
 ### Lua effects
+
 FancyNametags also loads any `.lua` file placed in the `LuaEffects` folder next to the plugin DLL (`BepInEx/plugins/FancyNametags/LuaEffects`).
 
 A minimal effect looks like this:
@@ -53,7 +55,6 @@ function AnimateCharacter(charIndex, vertexIndex)
     -- called once per character, every frame, for every character in the nametag
     local color32 = HSVToRGB((GetTime() * 0.3 + charIndex * 0.1) % 1, 1, 1)
     color32.a = 255
-
     Colors[vertexIndex + 0] = color32
     Colors[vertexIndex + 1] = color32
     Colors[vertexIndex + 2] = color32
@@ -64,10 +65,12 @@ end
 Each character is made up of 4 vertices (`vertexIndex` through `vertexIndex + 3`), one per corner of the character quad. Set `Colors[...]` to change color, `Vertices[...]` to move/distort the character, or both.
 
 Available globals inside a script:
+
 | Name | Description |
 | --- | --- |
 | `EffectName` | (string, required) Display name shown in the menu |
 | `AnimateCharacter(charIndex, vertexIndex)` | (function, required) Called every frame for every character |
+| `ShouldAnimateThisFrame()` | (function, optional) Return `false` to skip animating entirely on the current frame (e.g. to throttle an expensive effect to every other frame). Evaluated once per frame. Defaults to always animating if not defined |
 | `Colors` / `Vertices` | Arrays for the current frame you can read/write into |
 | `GetCharacterCount()` | Total number of characters in the nametag |
 | `GetTime()` | Current time in seconds, for animating |
@@ -80,5 +83,5 @@ Available globals inside a script:
 
 ## Disclaimer
 
-This product is not affiliated with Another Axiom Inc. or its videogames Gorilla Tag and Orion Drift and is not endorsed or otherwise sponsored by Another Axiom.  
+This product is not affiliated with Another Axiom Inc. or its videogames Gorilla Tag and Orion Drift and is not endorsed or otherwise sponsored by Another Axiom.
 Portions of the materials contained herein are property of Another Axiom. ©2021 Another Axiom Inc.
