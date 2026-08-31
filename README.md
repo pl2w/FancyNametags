@@ -86,12 +86,12 @@ Available globals inside a script:
 | `Log(message)` | Print to the BepInEx console, useful for debugging |
 | `GetRigPosition()` | World-space position of the nametag's owner, as a `Vector3` table |
 | `GetRigVelocity()` | Current velocity of the nametag's owner, as a `Vector3` table |
-| `GetRigScale()` | The player's scale factor (in-game size slider) |
+| `GetRigScale()` | The player's scale factor |
 | `IsRigLocal()` | `true` if the nametag belongs to the local player |
 | `GetRigColor()` | The player's chosen player color, as a `Color32` table |
 | `GetRigMaterialIndex()` | The player's selected material index |
 | `GetRigPlayerName()` | The player's visible name |
-| `GetSpeakingLoudness()` | How loudly the player is currently speaking (mic input level) |
+| `GetSpeakingLoudness()` | How loudly the player is currently speaking |
 | `IsLocalPartyMember()` | `true` if the player is in your party |
 
 `Color32`, `HSVToRGB`, and `Vector3` just return plain tables, so you can also build one by hand: `{ r = 255, g = 0, b = 0, a = 255 }` works anywhere a `Color32(...)` result would.
