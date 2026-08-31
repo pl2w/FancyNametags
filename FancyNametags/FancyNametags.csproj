@@ -15,7 +15,7 @@
 
     <ItemGroup>
         <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
-        <PackageReference Include="NLua" Version="1.7.9" Condition="'$(EnableLua)' == 'true'" />
+        <PackageReference Include="MoonSharp" Version="3.0.0-beta.1" Condition="'$(EnableLua)' == 'true'" />
     </ItemGroup>
 
     <ItemGroup Condition="'$(CI)'=='TRUE'">
@@ -45,21 +45,27 @@
         </Reference>
         <Reference Include="Fusion.Common">
             <HintPath>$(GorillaTagDir)/Gorilla Tag_Data/Managed/Fusion.Common.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="Fusion.Log">
-            <HintPath>$(GorillaTagDir)/Gorilla Tag_Data/Managed/Fusion.Log.dll</HintPath>
+            <HintPath>$(GorillaTagDir)/Gorilla Tag_Data/Managed/Fusion.Log.dll</HintPath>            
+            <Private>false</Private>
         </Reference>
         <Reference Include="Fusion.Realtime">
             <HintPath>$(GorillaTagDir)/Gorilla Tag_Data/Managed/Fusion.Realtime.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="Fusion.Runtime">
             <HintPath>$(GorillaTagDir)/Gorilla Tag_Data/Managed/Fusion.Runtime.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="Fusion.Sockets">
             <HintPath>$(GorillaTagDir)/Gorilla Tag_Data/Managed/Fusion.Sockets.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="Fusion.Unity">
             <HintPath>$(GorillaTagDir)/Gorilla Tag_Data/Managed/Fusion.Unity.dll</HintPath>
+            <Private>false</Private>
         </Reference>
         <Reference Include="HarmonyXInterop">
             <HintPath>$(GorillaTagDir)/BepInEx/core/HarmonyXInterop.dll</HintPath>
@@ -141,6 +147,10 @@
             <HintPath>$(GorillaTagDir)/Gorilla Tag_Data/Managed/Unity.TextMeshPro.dll</HintPath>
             <Private>false</Private>
         </Reference>
+        <Reference Include="UnityEngine.IMGUIModule.dll">
+            <HintPath>$(GorillaTagDir)/Gorilla Tag_Data/Managed/UnityEngine.IMGUIModule.dll</HintPath>
+            <Private>false</Private>
+        </Reference>
     </ItemGroup>
 
     <Import Project="Directory.Build.local.props" Condition="Exists('Directory.Build.local.props')" />
@@ -153,9 +163,12 @@
         <MakeDir Directories="$(PluginsDir)" />
         <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" />
         <Copy SourceFiles="$(TargetDir)$(ProjectName).pdb" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" />
-        <Copy SourceFiles="$(TargetDir)NLua.dll" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" Condition="'$(EnableLua)' == 'true'" />
-        <Copy SourceFiles="$(TargetDir)KeraLua.dll" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" Condition="'$(EnableLua)' == 'true'" />
-        <Copy SourceFiles="$(NuGetPackageRoot)keralua/1.4.9/runtimes/win-x64/native/lua54.dll" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" Condition="'$(EnableLua)' == 'true'" />
+        
+        <ItemGroup Condition="'$(EnableLua)' == 'true'">
+            <MoonSharpAndDeps Include="@(ReferenceCopyLocalPaths)" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' == 'MoonSharp'" />
+        </ItemGroup>
+        <Copy SourceFiles="@(MoonSharpAndDeps)" DestinationFolder="$(PluginsDir)" SkipUnchangedFiles="true" Condition="'$(EnableLua)' == 'true'" />
+        
         <ItemGroup Condition="'$(EnableLua)' == 'true'">
             <LuaEffectFiles Include="$(MSBuildThisFileDirectory)../LuaEffects/*.lua" />
         </ItemGroup>

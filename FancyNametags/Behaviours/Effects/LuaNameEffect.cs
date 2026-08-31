@@ -1,20 +1,19 @@
 using System;
 using TMPro;
 using UnityEngine;
+using MoonSharp.Interpreter;
+using MoonSharp.Interpreter.Loaders;
 
 namespace FancyNametags.Effects;
-
-#if !DISABLE_LUA
-using NLua;
 
 public class LuaNameEffect : BaseNameEffect
 {
     protected internal override bool ModifyVertices => true;
     protected internal override bool ModifyColors => true;
 
-    private Lua _state;
-    private LuaFunction _luaAnimateCharacter;
-    private LuaFunction _luaShouldAnimateThisFrame;
+    private Script _script;
+    private Closure _luaAnimateCharacter;
+    private Closure _luaShouldAnimateThisFrame;
     private bool _initialized;
     private int _lastFrame = -1;
     private Vector3[] _lastVertices;
@@ -27,7 +26,7 @@ public class LuaNameEffect : BaseNameEffect
     {
         base.Initialize(nametag, rig, data);
 
-        if (data is not string luaFile)
+        if (!rig || data is not string luaFile)
         {
             Views.SelectView.Instance.ActiveError = "Unexpected error occured";
             return;
@@ -35,26 +34,40 @@ public class LuaNameEffect : BaseNameEffect
 
         try
         {
-            _state = SafeLua();
-            _state.DoFile(luaFile);
+            _script = SafeScript();
+            _script.DoFile(luaFile);
 
-            _state["Color32"] = (Func<double, double, double, double, Color32>)((r, g, b, a) => new Color32((byte)r, (byte)g, (byte)b, (byte)a));
-            _state["HSVToRGB"] = (Func<float, float, float, Color32>)((h, s, v) => Color.HSVToRGB(h, s, v));
-            _state["Vector3"] = (Func<float, float, float, Vector3>)((x, y, z) => new Vector3(x, y, z));
+            _script.Globals["Color32"] = (Func<double, double, double, double, DynValue>)
+                ((r, g, b, a) => LuaConvert.Color32(_script, new Color32((byte)r, (byte)g, (byte)b, (byte)a)));
+            _script.Globals["HSVToRGB"] = (Func<float, float, float, DynValue>)
+                ((h, s, v) => LuaConvert.Color32(_script, Color.HSVToRGB(h, s, v)));
+            _script.Globals["Vector3"] = (Func<float, float, float, DynValue>)
+                ((x, y, z) => LuaConvert.Vector3(_script, new Vector3(x, y, z)));
 
-            _state["GetCharacterCount"] = () => NameTag.textInfo.characterCount;
-            _state["GetTime"] = () => Time.time;
-            _state["Log"] = (string message) => Plugin.Log.LogInfo(message);
+            _script.Globals["GetCharacterCount"] = (Func<int>)(() => NameTag.textInfo.characterCount);
+            _script.Globals["GetTime"] = (Func<float>)(() => Time.time);
+            _script.Globals["Log"] = (Action<string>)((message) => Plugin.Log.LogInfo(message));
 
-            _luaAnimateCharacter = _state["AnimateCharacter"] as LuaFunction;
+            _script.Globals["GetRigPosition"] = (Func<DynValue>)(() => LuaConvert.Vector3(_script, Rig.transform.position));
+            _script.Globals["GetRigVelocity"] = (Func<DynValue>)(() => LuaConvert.Vector3(_script, Rig.LatestVelocity()));
+            _script.Globals["GetRigScale"] = (Func<float>)(() => Rig.scaleFactor);
+            _script.Globals["IsRigLocal"] = (Func<bool>)(() => Rig.isLocal);
+            _script.Globals["GetRigColor"] = (Func<DynValue>)(() => LuaConvert.Color32(_script, Rig.playerColor));
+            _script.Globals["GetRigMaterialIndex"] = (Func<int>)(() => Rig.setMatIndex);
+            _script.Globals["GetRigPlayerName"] = (Func<string>)(() => Rig.playerNameVisible);
+            _script.Globals["GetSpeakingLoudness"] = (Func<float>)(() => Rig.SpeakingLoudness);
+            _script.Globals["IsLocalPartyMember"] = (Func<bool>)(() => Rig.IsLocalPartyMember);
 
-            if (_luaAnimateCharacter == null)
+            var animateFn = _script.Globals.Get("AnimateCharacter");
+            if (animateFn.Type != DataType.Function)
             {
                 Views.SelectView.Instance.ActiveError = $"Lua script '{luaFile}' does not define AnimateCharacter";
                 return;
             }
-            
-            _luaShouldAnimateThisFrame = _state["ShouldAnimateThisFrame"] as LuaFunction;
+            _luaAnimateCharacter = animateFn.Function;
+
+            var shouldAnimateFn = _script.Globals.Get("ShouldAnimateThisFrame");
+            _luaShouldAnimateThisFrame = shouldAnimateFn.Type == DataType.Function ? shouldAnimateFn.Function : null;
 
             _initialized = true;
         }
@@ -70,22 +83,20 @@ public class LuaNameEffect : BaseNameEffect
     {
         if (!_initialized) return false;
         if (_luaShouldAnimateThisFrame == null) return true;
-        
+
         if (_lastShouldAnimateFrame == Time.frameCount)
-        {
             return _lastShouldAnimateResult;
-        }
 
         _lastShouldAnimateFrame = Time.frameCount;
 
         try
         {
-            object[] result = _luaShouldAnimateThisFrame.Call();
-            bool shouldAnimate = result is { Length: > 0 } && result[0] switch
+            DynValue result = _luaShouldAnimateThisFrame.Call();
+            bool shouldAnimate = result.Type switch
             {
-                bool b => b,
-                double d => d != 0,
-                null => false,
+                DataType.Boolean => result.Boolean,
+                DataType.Number => result.Number != 0,
+                DataType.Nil => false,
                 _ => true
             };
 
@@ -115,8 +126,9 @@ public class LuaNameEffect : BaseNameEffect
             _lastFrame = Time.frameCount;
             _lastColors = colors;
             _lastVertices = vertices;
-            _state["Colors"] = colors;
-            _state["Vertices"] = vertices;
+
+            _script.Globals["Vertices"] = LuaConvert.ArrayProxy(_script, vertices, LuaConvert.Vector3, LuaConvert.FromLuaVector3);
+            _script.Globals["Colors"] = LuaConvert.ArrayProxy(_script, colors, LuaConvert.Color32, LuaConvert.FromLuaColor32);
         }
 
         try
@@ -132,23 +144,18 @@ public class LuaNameEffect : BaseNameEffect
 
     private void OnDestroy()
     {
-        _state?.Dispose();
+        _script = null;
     }
 
-    // danger list http://lua-users.org/wiki/SandBoxes
-    public static Lua SafeLua()
+    public static Script SafeScript()
     {
-        var lua = new Lua();
-        lua.DoString(@"
-            luanet = nil
-            import = nil
-            os, io, package, debug = nil, nil, nil, nil
-            require, module, dofile, loadfile, load, loadstring = nil, nil, nil, nil, nil, nil
-            getmetatable, setmetatable, rawget, rawset, rawequal = nil, nil, nil, nil, nil
-            collectgarbage, newproxy, getfenv, setfenv = nil, nil, nil, nil
-            if string then string.dump = nil end
-        ");
-        return lua;
+        var script = new Script(CoreModules.Preset_HardSandbox)
+        {
+            Options =
+            {
+                ScriptLoader = new FileSystemScriptLoader()
+            }
+        };
+        return script;
     }
 }
-#endif

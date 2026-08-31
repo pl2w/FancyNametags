@@ -3,6 +3,7 @@ using BepInEx;
 using BepInEx.Logging;
 using FancyNametags.Behaviours;
 using HarmonyLib;
+using UnityEngine;
 
 namespace FancyNametags;
 
@@ -23,6 +24,12 @@ public class Plugin : BaseUnityPlugin
         Configuration.Initialize(Config);
         NameEffectRegistry.RegisterAllEffects();
         GorillaTagger.OnPlayerSpawned(NameEffectNetworking.Initialize);
+
+#if DEBUG
+        var debugGuiObject = new GameObject("FancyNametags_DebugGUI");
+        debugGuiObject.AddComponent<EffectDebugGUI>();
+        DontDestroyOnLoad(debugGuiObject);
+#endif
     }
 }
 

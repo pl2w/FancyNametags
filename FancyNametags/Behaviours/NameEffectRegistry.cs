@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using FancyNametags.Effects;
 #if !DISABLE_LUA
-using NLua.Exceptions;
+using MoonSharp.Interpreter;
 #endif
 
 namespace FancyNametags.Behaviours;
@@ -58,11 +58,13 @@ public static class NameEffectRegistry
         {
             try
             {
-                using var lua = LuaNameEffect.SafeLua();
-                lua.DoFile(file);
+                var script = LuaNameEffect.SafeScript();
+                script.DoFile(file);
 
-                string name = (string)lua["EffectName"];
-                if (name is null || name.IsNullOrEmpty())
+                DynValue nameValue = script.Globals.Get("EffectName");
+                string name = nameValue.Type == DataType.String ? nameValue.String : null;
+
+                if (string.IsNullOrEmpty(name))
                 {
                     Plugin.Log.LogWarning($"Skipping {Path.GetFileName(file)}. No name field.");
                     continue;
@@ -70,9 +72,13 @@ public static class NameEffectRegistry
 
                 Register(name, typeof(LuaNameEffect), file);
             }
-            catch (LuaException ex)
+            catch (ScriptRuntimeException ex)
             {
-                Plugin.Log.LogWarning($"Skipping {Path.GetFileName(file)} because of {ex}. Likely not a FancyNameEffect");
+                Plugin.Log.LogWarning($"Skipping {Path.GetFileName(file)} because of {ex.Message}. Likely not a FancyNameEffect");
+            }
+            catch (SyntaxErrorException ex)
+            {
+                Plugin.Log.LogWarning($"Skipping {Path.GetFileName(file)} because of {ex.Message}. Likely not a FancyNameEffect");
             }
         }
 #endif

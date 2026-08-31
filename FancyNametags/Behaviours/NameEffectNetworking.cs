@@ -56,7 +56,7 @@ public static class NameEffectNetworking
 
         if (!string.IsNullOrEmpty(colorId))
         {
-            if (colorId == vertexId && vertexEffect != null)
+            if (colorId == vertexId)
             {
                 colorEffect = vertexEffect;
                 colorData = vertexData;
