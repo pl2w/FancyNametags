@@ -1,7 +1,7 @@
 name: Auto Build
 on:
   schedule:
-    - cron: "0 19 * * 5"
+    - cron: "0 20 * * 5"
   workflow_dispatch:
     inputs:
       release:
@@ -58,6 +58,7 @@ jobs:
           name: FancyNametags
           path: |
             FancyNametags/bin/Release/netstandard2.1/FancyNametags.dll
+            FancyNametags/bin/Release/netstandard2.1/MoonSharp.dll
           if-no-files-found: error
           retention-days: 7
 
@@ -77,10 +78,8 @@ jobs:
           mkdir -p "$temp"
           mkdir -p "$temp/LuaEffects"
           cp "$bin/FancyNametags.dll" "$temp/"
-          cp "$bin/NLua.dll" "$bin/KeraLua.dll" "$temp/"
+          cp "$bin/MoonSharp.dll" "$temp/"
           cp LuaEffects/*.lua "$temp/LuaEffects/"
-          lua_native="$(find "${NUGET_PACKAGES:-$HOME/.nuget/packages}/keralua" -path '*/runtimes/win-x64/native/lua54.dll' | head -n1)" # kill me
-          cp "$lua_native" "$temp/lua54.dll"
           cd "$temp/.."
           zip -r "$GITHUB_WORKSPACE/FancyNametags.zip" FancyNametags
 
