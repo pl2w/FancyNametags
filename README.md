@@ -25,9 +25,22 @@ FancyNametags adds a **Fancy Names** entry to Computer Interface. Open it to bro
 | `Enter` | Toggle the selected effect on/off |
 | `Option 1` | Clear all active effects |
 | `Option 2` | Force the selected effect onto every nametag you see, locally, regardless of what effect that player has chosen (press again to remove the override) |
+| `Option 3` | Open the configuration editor for the selected effect (only shown if it has configurable settings) |
 | `Back` | Return to the main menu |
 
-An effect is shown in green while it's active on your nametag, and Lua-based effects are tagged `[LUA]` in the list.
+An effect is shown in green while it's active on your nametag. Effects marked with a `*` have configurable parameters that can be tuned via the config editor. Lua-based effects are tagged `[LUA]` in the list.
+
+### Configuration editor
+
+Pressing **Option 3** on an effect with configurable settings opens the configuration editor.
+
+| Button | Action |
+| --- | --- |
+| `Up` / `Down` | Navigate between parameters |
+| `Left` / `Right` | Decrease / increase the selected parameter value |
+| `Back` | Return to the effect selection list |
+
+Changes take effect immediately. All parameters are persisted in the BepInEx config file and re-applied on the next launch.
 
 Effects come in two different types, and you can have one of each active at the same time:
 - **Vertex effects** move or distort the characters of your name (e.g. *Bobber*).
@@ -35,7 +48,7 @@ Effects come in two different types, and you can have one of each active at the 
 
 A Lua effect fills both slots at once (see [Lua effects](#lua-effects) below), so only one Lua effect can be active at a time, you cannot pair a Lua effect with a built-in one, or two Lua effects with each other.
  
-Selecting an effect that occupies the same slot as your current one will replace it. Your last selected effects are saved to the BepInEx config and re-applied automatically the next time you launch the game. Effects are networked to others who have the mod and effect installed.
+Selecting an effect that occupies the same slot as your current one will replace it. Your last selected effects are saved to the BepInEx config and re-applied automatically the next time you launch the game. All effect parameters (both built-in and Lua) are also persisted in the config and re-applied on launch. Effects are networked to others who have the mod and effect installed.
  
 ### Built-in effects
 - Color Wave
@@ -52,10 +65,11 @@ A minimal effect looks like this:
 
 ```lua
 EffectName = "My Fancy Name Effect"
+speed = GetConfig("speed", 0.3, "Speed of the color cycle")
 
 function AnimateCharacter(charIndex, vertexIndex)
     -- called once per character, every frame, for every character in the nametag
-    local color32 = HSVToRGB((GetTime() * 0.3 + charIndex * 0.1) % 1, 1, 1)
+    local color32 = HSVToRGB((GetTime() * speed + charIndex * 0.1) % 1, 1, 1)
     color32.a = 255
     Colors[vertexIndex + 0] = color32
     Colors[vertexIndex + 1] = color32
@@ -69,6 +83,8 @@ Each character is made up of 4 vertices (`vertexIndex` through `vertexIndex + 3`
 A script must define `EffectName` and `AnimateCharacter`, or it gets skipped with a warning.
 
 If a script errors at runtime, that effect is disabled and the error goes to the BepInEx console.
+
+Lua effects can use `GetConfig` to declare configurable parameters.
 
 Available globals inside a script:
 
@@ -84,6 +100,7 @@ Available globals inside a script:
 | `HSVToRGB(h, s, v)` | Construct a color from hue/saturation/value. Returns the same kind of table as `Color32` |
 | `Vector3(x, y, z)` | Construct a 3D vector. Returns a plain table (`{x=, y=, z=}`) |
 | `Log(message)` | Print to the BepInEx console, useful for debugging |
+| `GetConfig(key, defaultValue, description)` | Register a configurable parameter for this effect and return its current value. `defaultValue` type determines the config type (number, boolean, or string). Values are persisted in the BepInEx config file under the section `Lua.<filename>` and can be edited via the config editor or by hand |
 | `GetRigPosition()` | World-space position of the nametag's owner, as a `Vector3` table |
 | `GetRigVelocity()` | Current velocity of the nametag's owner, as a `Vector3` table |
 | `GetRigScale()` | The player's scale factor |
