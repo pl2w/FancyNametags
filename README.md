@@ -10,6 +10,10 @@
 3. Download the latest version from the [Releases](https://github.com/pl2w/FancyNametags/releases/latest) page.
 4. Move the mod into your plugins folder.
 
+To install custom effects, either move it into your BepInEx `plugins` folder if its a .dll effect, or move it into your `LuaEffects` folder if its a Lua effect.
+
+# MAKE SURE TO AUDIT EVERY SINGLE EFFECT YOU INSTALL!!!
+
 ---
 
 ## Usage
